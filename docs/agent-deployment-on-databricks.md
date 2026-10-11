@@ -17,6 +17,14 @@
   - [Observability](#observability)
   - [Evaluation](#evaluation)
   - [Monitoring](#monitoring)
+- [Tool integration via MCP](#tool-integration-via-mcp)
+  - [About MCP](#about-mcp)
+  - [MCP on Databricks](#mcp-on-databricks)
+- [Observability via MLflow Tracing](#observability-via-mlflow-tracing)
+  - [About MLflow Tracing](#about-mlflow-tracing)
+  - [Adding tracing to agents](#adding-tracing-to-agents)
+  - [Traces in production (in Databricks)](#traces-in-production-in-databricks)
+  - [Storing traces in UC](#storing-traces-in-uc)
 
 ---
 
@@ -25,6 +33,7 @@
 | Abbreviation | Full form |
 | --- | --- |
 | UC | Unity Catalog |
+| ACL | Access Control List |
 
 # Conceptual foundations
 **See**: [`agentic-ai-basic-concepts.md`](./agentic-ai-basic-concepts.md)
@@ -94,7 +103,7 @@ When you deploy an agent as a Databricks App (note: "Databricks Apps" is the pla
 > - "Databricks Apps" => The managed web hosting platform
 > - "Databricks App" => The web application deployed above
 
-A Databricks app is a web application that runs as a containerized service on the Databricks serverless platform. Developers use supported frameworks such as Streamlit, Dash, or Gradio to build apps that deliver interactive data or AI experiences within a Databricks workspace.
+A Databricks app is a web application that runs as a containerised service on the Databricks serverless platform. Developers use supported frameworks such as Streamlit, Dash, or Gradio to build apps that deliver interactive data or AI experiences within a Databricks workspace.
 
 > **Reference**: ["App", Key concepts in Databricks Apps
 , **docs.databricks.com/aws/en/dev-tools/databricks-apps/key-concepts**](https://docs.databricks.com/aws/en/dev-tools/databricks-apps/key-concepts#app)
@@ -107,7 +116,7 @@ Key characteristics of a Databricks App:
 - Service principal
   - Each app runs under its own service principal identity
   - This determines what Databricks resources the app can access
-    > E.g.: Serving endpoints, UC objects, MLflow experiments.
+    > E.g.: Serving endpoints, UC objects, MLflow Experiments.
 - Unique URL
   - Every deployed app gets a workspace-scoped URL
   - Users or downstream services can call this directly.
@@ -245,7 +254,7 @@ In essence: MLflow Tracing is key to what makes evaluation and monitoring possib
 > **Reference**: [MLflow Tracing for LLM and Agent Observability, **mlflow.org/docs/latest/genai/tracing**](https://mlflow.org/docs/latest/genai/tracing/)
 
 ## Evaluation
-Attach scorers to the MLflow experiment that automatically assess trace quality using LLM judges, guidelines, or custom Python functions. MLflow's evaluation and monitoring capabilities help you systematically measure, improve, and maintain the quality of your LLM applications and AI agents throughout their lifecycle from development through production.
+Attach scorers to the MLflow Experiment that automatically assess trace quality using LLM judges, guidelines, or custom Python functions. MLflow's evaluation and monitoring capabilities help you systematically measure, improve, and maintain the quality of your LLM applications and AI agents throughout their lifecycle from development through production.
 
 > **Reference**: [Evaluating LLMs and Agents with MLflow, **mlflow.org/docs/latest/genai/eval-monitor**](https://mlflow.org/docs/latest/genai/eval-monitor/)
 
@@ -284,5 +293,90 @@ Key capabilities:
 - Monitoring (discussed in the previous section)
 
 ## Monitoring
-Monitoring is the process of ensuring data from observability and evaluation are maintained and kept up to date across time. It is meant to enable long-term analysis and long-term maintenance + improvement of quality assessment standards and deployment performance. This involves managing scorer lifecycles, ings historical traces with new scorers, and archiving traces to Delta tables for long-term analysis.
+Monitoring is the process of ensuring data from observability and evaluation are maintained and kept up to date across time. It is meant to enable long-term analysis and long-term maintenance + improvement of quality assessment standards and deployment performance. This involves managing scorer lifecycles, backfilling historical traces with new scorers, and archiving traces to Delta tables for long-term analysis.
 
+# Tool integration via MCP
+## About MCP
+**See**: [MCP](./mcp.md)
+
+## MCP on Databricks
+Databricks provides 3 categories of MCP server:
+
+> To cover different integration needs.
+
+| Type | Description | Example |
+|---|---|---|
+| Managed MCP | Pre-configured servers that give immediate access to Databricks features | Unity Catalog functions, Genie spaces, AI Search indexes |
+| External MCP | Managed connections to MCP servers hosted outside of Databricks | Third-party APIs, SaaS integrations |
+| Custom MCP | A custom MCP server you write and host as a Databricks App | Domain-specific tools, internal services |
+
+> **Source**: "Tool Integration and Observability", Deploying and Monitoring Agent Applications on Databricks, Databricks Partner Academy
+
+Managed MCP server in particular (the out-of-box Databricks-native option) is backed by UC functions. You write a Python function, register it in UC, and the managed MCP server automatically exposes it as a tool that any connected agent can discover and invoke. And since the MCP protocol handles discovery, invocation, and response formatting, the agent does not need custom code to call the UC function and can rely on calls to the MCP server alone.
+
+# Observability via MLflow Tracing
+> Extends from ["Observability" in this document](#observability).
+
+## About MLflow Tracing
+As discussed in ["Observability" in this document](#observability), MLflow Tracing is a fully OpenTelemetry-compatible LLM observability solution for your agents and LLM applications. It captures the inputs, outputs, and metadata associated with each intermediate step of a request, enabling you to easily pinpoint the source of bugs and unexpected behaviors. As discussed in the same section, it plays a key role in evaluation and monitoring, by providing observability into the deployed model and agentic processes via traces (see: ["Trace", Common Terms, **Getting into Observability**, **pranigopu.github.io/getting-into-observability/common-terms.html**](https://pranigopu.github.io/getting-into-observability/common-terms.html#trace))
+
+## Adding tracing to agents
+MLflow Tracing can be used to record the execution of each agent request as a structured trace, a tree of spans (see: ["Span", Common Terms, **Getting into Observability**, **pranigopu.github.io/getting-into-observability/common-terms.html**](https://pranigopu.github.io/getting-into-observability/common-terms.html#span)), where each span represents individual operations and the tree represents the execution as a whole. The simplest way to enable tracing is the `@mlflow.trace` decorator on your agent's entry point. Each span captures:
+
+- **Inputs and outputs**: <br> What went into the operation and what came out
+- **Timing**: <br> Start time, end time, and duration
+- Span type: <br> The kind of operation (e.g. AGENT, CHAT_MODEL, TOOL, RETRIEVER)
+- **Status**: Whether the operation succeeded or failed
+
+> **NOTE: Spans for library calls + custom (manually-created) spans**: If the agent calls supported libraries (e.g. the OpenAI SDK), child spans are generated automatically for each library call. You can also add manual spans with `mlflow.start_span()` for custom logic.
+>
+> **Reference** (more on manual tracing): [Manual and custom tracing, **docs.databricks.com/aws/en/mlflow3/genai/tracing/manual-tracing**](https://docs.databricks.com/aws/en/mlflow3/genai/tracing/manual-tracing)
+
+> **NOTE**: A typical agent trace contains a root AGENT span with child spans for `CHAT_MODEL` calls, `TOOL` invocations, and `RETRIEVER` operations. This hierarchy shows exactly how the agent processed the request, i.e. which tools it called, in what order, and how long each step took.
+
+## Traces in production (in Databricks)
+In the context of Databricks, with MLflow integrated into the Databricks platform, traces are logged to an MLflow Experiment backed by UC. ***This means traces are stored as governed objects with full lineage and access control.*** The experiment serves as the central hub where all observability and evaluation data converges.
+
+> **CONCEPTUAL NOTE** (reminder): Data lineage shows where data in Databricks came from and where it goes: which queries and files populate a table, which jobs and notebooks transform it, and which dashboards consume the results. The same applies to MLflow traces, which are a form of data.
+> 
+> **Reference**: [Lineage in Unity Catalog, s**docs.databricks.com/aws/en/data-governance/unity-catalog/data-lineage**](https://docs.databricks.com/aws/en/data-governance/unity-catalog/data-lineage)
+
+As mentioned before, traces are foundational to:
+
+- Evaluation
+- Monitoring
+
+More concretely:
+
+- Scorers evaluate traces, not raw requests
+  > => Any agent that produces MLflow traces can be evaluated using the same scorer infrastructure.
+- Trace archival streams traces to Delta tables
+  > For SQL-based analysis and dashboarding.
+- Metric backfill applies new scorers retroactively
+  > I.e.: Applies it to traces logged before the scorer existed.
+
+> **KEY POINTS**:
+>
+> - Tracing must be enabled before scorers can be useful
+> - Agent not producing traces => Nothing for scorers to evaluate
+> - First step in monitoring: ensuring traces flow to an MLflow Experiment
+
+## Storing traces in UC
+By default, traces are stored in the MLflow control plane. However, you can store OpenTelemetry traces directly in UC Delta tables. This gives you long-term retention (archival), SQL-queryable trace data, and governance through UC schema and table permissions rather than experiment-level ACLs. To bind an experiment to UC Delta tables, pass a `trace_location` parameter when creating or setting the experiment. This automatically creates 4 Delta tables in the specified schema:
+
+| Table | Contents |
+|---|---|
+| `<prefix>_otel_spans` | Individual span records (the primary trace data) |
+| `<prefix>_otel_annotations` | Assessments and feedback attached to traces |
+| `<prefix>_otel_logs` | Log entries associated with trace execution |
+| `<prefix>_otel_metrics` | Metric values computed by scorers |
+
+> **KEY TECHNICAL DETAILS**: Once you bind an experiment to a UC trace location, you cannot reassign it to a different location. However, multiple experiments can share the same UC location. Users with access to the UC tables can view all traces stored there, regardless of which experiment the traces belong to. Ingestion is capped at 200 traces per second per workspace and 100 MB per second per table.
+
+Once stored in Delta tables:
+
+- Traces can be queried directly with SQL
+- -> Through a Databricks SQL warehouse
+- -> Enabling custom reporting and dashboards
+
+> **NOTE: Governance**: Access is controlled through UC table permissions. Users need `USE_CATALOG`, `USE_SCHEMA`, and explicit `MODIFY` + `SELECT` grants on each table. ***Note that `ALL_PRIVILEGES` is not sufficient; `MODIFY` and `SELECT` must be granted explicitly.***
