@@ -208,7 +208,7 @@ Key capabilities of Unity AI Gateway:
   > Do so on requests and responses at the gateway level.
 - **Rate limiting**: <br> Configure consumption limits per endpoint
   > This is to manage capacity and control costs.
-- **Usage tracking**: <br> Analyze costs by endpoint, model, principal, and tags
+- **Usage tracking**: <br> Analyse costs by endpoint, model, principal, and tags
   > This is done via billable usage system tables.
 - **Traffic splitting**: <br> Distribute requests across multiple model backends
   > This is for A/B testing or gradual rollouts.
