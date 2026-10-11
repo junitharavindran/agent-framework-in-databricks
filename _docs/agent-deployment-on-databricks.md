@@ -119,6 +119,10 @@ Key characteristics of a Databricks App:
     - View logs
     - Trigger redeployments
 
+> **CONCEPTUAL NOTE**: A service principal is a non-human identity that lets an app or automation authenticate and access resources. The cloud equivalent of a service account - an app's own login, which must be protected like any credential.
+>
+> **Reference**: [Service principal, **cybersecurity101.net/glossary/service-principal**](https://cybersecurity101.net/glossary/service-principal/)
+
 > **Reference**: [Databricks Apps, **docs.databricks.com/aws/en/dev-tools/databricks-apps**](https://docs.databricks.com/aws/en/dev-tools/databricks-apps/)
 
 ---
