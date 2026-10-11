@@ -212,6 +212,8 @@ Key capabilities of Unity AI Gateway:
   > This is done via billable usage system tables.
 - **Traffic splitting**: <br> Distribute requests across multiple model backends
   > This is for A/B testing or gradual rollouts.
+  > 
+  > **NOTE**: A/B testing has been defined in ["Comparing both patterns" in this document](#comparing-both-patterns)
 - **Inference tables**: Log requests and responses to UC Delta tables
   > This is for auditing and analysis.
 
