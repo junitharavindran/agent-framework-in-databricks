@@ -56,7 +56,7 @@ MCP follows a client-server architecture where an MCP host (an AI application) e
 
 ![](/_common-resources/mcp-architecture-abstract-example.png)
 
-**Source**: [Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)
+> **Source**: [Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)
 
 > **NOTE**: A single host can connect to multiple servers simultaneously, each through its own client instance. This lets an agent access tools from UC functions, external APIs, and custom services all through the same protocol.
 
@@ -68,7 +68,7 @@ The key participants in the MCP architecture are:
   - Obtains context from an MCP server for the MCP host to use
 - **MCP server**: <br> A program that provides context to MCP clients
 
-**Reference**: [Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)
+> **Reference**: [Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)
 
 ## MCP's scope
 MCP has the following projects built for it/from it:
@@ -82,7 +82,7 @@ MCP has the following projects built for it/from it:
 - **MCP development tools**: <br> Tools for developing MCP servers and clients
 - **MCP reference server implementations**
 
-**Reference**: [Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)
+> **Reference**: [Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)
 
 ## MCP's protocol layers
 MCP is actually 2 related protocols merged into a single standard:
@@ -99,7 +99,7 @@ MCP is actually 2 related protocols merged into a single standard:
 
 > **KEY POINT**: The transport layer abstracts communication details from the data layer. This enables the same JSON-RPC 2.0 message format across all transport mechanisms.
 
-**Reference**: [Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)
+> **Reference**: [Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)
 
 ## MCP's statelessness
 > "MCP is a stateless protocol. Every request carries the protocol version and the capabilities relevant to that request in its `_meta` field, so the server can process each request on its own. Clients should also identify themselves in the same field unless configured not to. Servers advertise their supported versions and capabilities through the mandatory server/discover request, which clients may send before any other request."
