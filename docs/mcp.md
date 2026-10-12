@@ -66,7 +66,7 @@ The key participants in the MCP architecture are:
 - **MCP client**: <br> A component that:
   - Maintains a connection to an MCP server
   - Obtains context from an MCP server for the MCP host to use
-- **MCP server**: <br> A program that provides context to MCP clients
+- **MCP server**: <br> A program that responds to MCP clients' requests
 
 > **Reference**: [Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)
 
