@@ -7,6 +7,5 @@ Repository that explores the basics of:
 - Observability, tracking, and evaluation via MLflow
 
 ## Navigate
-- [`_common-resources`](./_common-resources/)
 - [`docs`](./docs/)
 - [`src`](./src/)

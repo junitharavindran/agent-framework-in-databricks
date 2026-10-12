@@ -18,6 +18,13 @@
   - [What is it?](#what-is-it)
   - [Continuous evaluation cycle](#continuous-evaluation-cycle)
   - [Preparing for evaluation](#preparing-for-evaluation)
+    - [What is effective evaluation?](#what-is-effective-evaluation)
+    - [Designing evaluation dataset](#designing-evaluation-dataset)
+- [Evaluation-driven development with MLflow](#evaluation-driven-development-with-mlflow)
+  - [Overview of MLflow's gen-AI evaluation framework](#overview-of-mlflows-gen-ai-evaluation-framework)
+  - [Core components of MLflow's evaluation architecture](#core-components-of-mlflows-evaluation-architecture)
+  - [MLflow evaluation workflow](#mlflow-evaluation-workflow)
+  - [Observability via MLflow Tracing for evaluation](#observability-via-mlflow-tracing-for-evaluation)
 
 ---
 
@@ -118,8 +125,8 @@ Production agents encounter:
 ## Unstable/evolving quality signals
 In traditional software, test suites provide stable quality signals. On the other hand, AI agent evaluation is an ongoing process, and necessarily so, due to non-determinism, context-dependency, and real-world variability, because these aspects ensure there is no guarantee that the quality that was observed initially will remain as the context evolves and as new real-world scenarios emerge, and non-determinism means the intermediate steps taken by the AI agent to achieve its ends cannot be known beforehand. Furthermore, AI agents typically use LLMs or other neural network models, which are black-boxes when it comes to their functioning, which makes continuous evaluation a necessity, not a "good-to-have".
 
-This continuous evaluation cycle means your evaluation infrastructure must be scalable, automated, and integrated into your development workflow. The evaluation framework must support: (1) rapid feedback loops during development, (2) comprehensive validation before deployment, (3) ongoing monitoring in production, and (4) dataset evolution as usage patterns change.
-
+> **KEY POINT**: This continuous evaluation cycle means your evaluation infrastructure must be scalable, automated, and integrated into your development workflow. The evaluation framework must support: (1) rapid feedback loops during development, (2) comprehensive validation before deployment, (3) ongoing monitoring in production, and (4) dataset evolution as usage patterns change.
+> 
 > More on this discussed in ["Evaluation-driven development" in this document](#evaluation-driven-development).
 
 # Evaluation-driven development
@@ -161,3 +168,90 @@ Specifically, the evaluation framework must support:
 - Dataset evolution as usage patterns change
 
 ## Preparing for evaluation
+### What is effective evaluation?
+Effective evaluation requires:
+
+- Defining quality dimensions
+- Assembling representative datasets
+- Enabling tracing
+  > So judges can assess not just answers but how answers were produced.
+
+The aim of preparing for evaluation is to create a feedback loop where:
+
+- Metrics reflect real user needs
+- Failures are diagnosable through traces and rationales
+
+### Designing evaluation dataset
+
+| Principle | Practical guidance |
+| --- | --- |
+| Representativeness | Include common, high-impact user queries so offline results generalise to production |
+| Edge cases | Add ambiguous, out-of-scope, and adversarial prompts to surface failure modes early |
+| Diversity | Vary length, complexity, domain, and user expertise to expose blind spots in reasoning and retrieval |
+| Ground truth and/or guidelines | Use expected answers or fact sets for objective questions; use natural-language guidelines where style, policy, or completeness matter |
+| Storage and versioning | Maintain versioning, lineage, sharing, and governance of evaluation datasets to ensure development, improvement, security, and collaboration |
+
+# Evaluation-driven development with MLflow
+> **Context**: [MLflow](./mlflow.md)
+
+## Overview of MLflow's gen-AI evaluation framework
+A core tenet of MLflow's evaluation capabilities is evaluation-driven development, which is discussed in ["Evaluation-driven development" in this document](#evaluation-driven-development). MLflow provides a comprehensive evaluation framework specifically designed for gen-AI applications, offering automated judges, tracing capabilities, and the means to add custom judges and tracing.
+
+> **Reference**: [Evaluating LLMs and Agents with MLflow, **mlflow.org/docs/latest/genai/eval-monitor**](https://mlflow.org/docs/latest/genai/eval-monitor/)
+
+> **NOTE**: MLflow provides an evaluation framework for gen-AI applications, but it is not limited to these applications. It also provides an evaluation framework for traditional ML and deep learning, including model training and testing (see the general ML documentation [MLflow: AI Engineering Platform for LLMs, Agents, & Models, **mlflow.org/docs/latest/ml**](https://mlflow.org/docs/latest/ml/), as opposed to the gen-AI-specific documentation [MLflow: AI Engineering Platform for LLMs and Agents, **mlflow.org/docs/latest/genai**](https://mlflow.org/docs/latest/genai/)). However, we shall be focusing on MLflow's gen-AI-related offerings.
+
+MLflow's `mlflow.genai.evaluate()` function provides the interface to MLflow's gen-AI evaluation harness: a structured way to feed in test data, run your app, and automatically score the results - it helps you quickly execute your application for every record in your evaluation set and then run each output through your LLM judges and metric computations.
+
+> **CONCEPTUAL NOTE**: An evaluation harness is the infrastructure that runs your LLM/agent evaluations end-to-end. More precisely, an evaluation harness is the controlled combination of scripts, test data, permissions, execution boundaries, and network conditions used to assess a model, agent, or adjacent system before release.
+> 
+> **References**:
+> 
+> - [Eval harness: What it is, how to use it, and why you should care, **deepeval.com/blog/what-is-an-eval-harness**](https://deepeval.com/blog/what-is-an-eval-harness)
+> - [Evaluation Harness, **nhimg.org/glossary/evaluation-harness**](https://nhimg.org/glossary/evaluation-harness/)
+
+## Core components of MLflow's evaluation architecture
+1. Evaluation Dataset
+  > Inputs, expectations, outputs.
+2. Scorers (Judges)
+  > Built-in, custom, code-based.
+3. Predict Function
+  > Omitted if evaluating pre-generated outputs ("answer sheet" mode).
+
+```
+(1)--+
+     |
+(2)--+-->(evaluation harness)-->(evaluation result)
+     |
+(3)--+
+```
+
+More precisely, in MLflow's specific interface:
+
+```
+data (EvaluationDataset, DataFrame, list) ---+
+                                             |
+scorers (built-in, custom, code-based) ------+
+                                             +--> mlflow.genai.evaluate() --> EvaluationResult
+predict_fn (agent/app function (optional)) --+     |- orchestrates             |- metrics (aggregate)
+                                             |     |- logs                     |- tables (per example)
+model_id (LoggedModel linkage (optional))- --+                                 |- run_id
+```
+
+> **TECHNICAL NOTE**: When implemented and provided, `predict_fn` must accept keys from the inputs dictionary as keyword arguments, return a JSON-serialisable dictionary, be instrumented with MLflow Tracing, and emit exactly one trace per call.
+
+## MLflow evaluation workflow
+1. Data loading
+  > Validate structure
+2. Output generation
+  > Call `predict_fn` or use pre-generated/obtained outputs.
+3. Trace creation
+  > Auto-instrumented; see ["Observability via MLflow Tracing for evaluation" in this document](#observability-via-mlflow-tracing-for-evaluation).
+4. Scorer execution
+  > Apply judges
+5. Aggregate and log metrics to MLflow
+
+## Observability via MLflow Tracing for evaluation
+> **Context**: ["Observability via MLflow Tracing", `agent-deployment-on-databricks.md`](./agent-deployment-on-databricks.md#observability-via-mlflow-tracing)
+
+MLflow Tracing provides comprehensive observability into agent execution, capturing every step of your agent's reasoning process. ***Tracing is enabled when using `mlflow.genai.evaluate()` with properly instrumented predict functions.***
