@@ -78,7 +78,7 @@ It is a scalable architecture that covers:
   - Importantly, it provides features such as access control
   > Read more: [Tracking Server, **www.mlflow.org/docs/latest/self-hosting/architecture/backend-store**](https://www.mlflow.org/docs/latest/self-hosting/architecture/tracking-server/)
 
-> [1] **TECHNICAL NOTE: SQLAlchemy**: SQLAlchemy is the Python S*QL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL. SQLAlchemy provides a full suite of well known enterprise-level persistence patterns, designed for efficient and high-performing database access, adapted into a simple and Pythonic domain language.
+> [1] **TECHNICAL NOTE: SQLAlchemy**: SQLAlchemy is the Python SQL toolkit and Object Relational Mapper that gives application developers the full power and flexibility of SQL. SQLAlchemy provides a full suite of well known enterprise-level persistence patterns, designed for efficient and high-performing database access, adapted into a simple and Pythonic domain language.
 >
 > **Reference**: [SQLAlchemy 2.1.4, **pypi.org/project/SQLAlchemy** (last accessed: 2026-10-11)](https://pypi.org/project/SQLAlchemy/)
 
