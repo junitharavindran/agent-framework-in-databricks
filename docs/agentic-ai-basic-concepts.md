@@ -73,7 +73,7 @@ Another way to define AI agents is as "compound software systems, inclusive of o
 Single-agent is when 1 AI agent performs the entire activity needed for a goal or goals. Multi-agent is when multiple AI agents perform sub-tasks in a coordinated way. Multi-agent activities are coordinated by AI orchestration. E.g.:
 
 ```
-supervisor agent (routes and synthesises)
+  supervisor agent (routes and synthesises)
                       |
                 (delegates to)
                       |
