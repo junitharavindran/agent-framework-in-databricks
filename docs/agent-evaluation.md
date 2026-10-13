@@ -29,6 +29,17 @@
     - [Traces and spans in MLFlow](#traces-and-spans-in-mlflow)
     - [MLflow Tracing in Databricks](#mlflow-tracing-in-databricks)
   - [Production monitoring via AI Gateway integration](#production-monitoring-via-ai-gateway-integration)
+  - [Scorers for evaluation via MLflow](#scorers-for-evaluation-via-mlflow)
+    - [Overview of scorers](#overview-of-scorers)
+    - [Spectrum of scorers](#spectrum-of-scorers)
+    - [Evaluation steps with scorers](#evaluation-steps-with-scorers)
+  - [Evaluation feedback objects](#evaluation-feedback-objects)
+    - [Specific scorer notes](#specific-scorer-notes)
+      - [Individual-turn vs. multi-turn judges](#individual-turn-vs-multi-turn-judges)
+      - [Guideline judges](#guideline-judges)
+      - [Custom scorers](#custom-scorers)
+        - [Deterministic scorer](#deterministic-scorer)
+        - [Custom LLM judges](#custom-llm-judges)
 
 ---
 
@@ -365,7 +376,7 @@ How this could work to improve the model evaluation dataset:
 Inference table benefits:
 
 - Automatic logging
-  > Every request captured without additional instrumentation.
+  > Every request captured without additional instrumentation\*.
 - Rich metadata
   > Request/response content, timestamps, latency, model versions, trace data.
 - Query interface
@@ -373,4 +384,152 @@ Inference table benefits:
 - Evaluation integration
   > Inference table data can be directly used as evaluation datasets.
 
-> **CONCEPTUAL NOTE**: Instrumentation is a collective term for measuring instruments, used for indicating, measuring, and recording quantities. While this term is commonly used for physical instruments, we also use this term for software, where an "instrument" is any process or function that indicates, measures, and records observability data about a system/application.
+> \* **CONCEPTUAL NOTE**: Instrumentation is a collective term for measuring instruments, used for indicating, measuring, and recording quantities. While this term is commonly used for physical instruments, we also use this term for software, where an "instrument" is any process or function that indicates, measures, and records observability data about a system/application.
+
+---
+
+> **KEY POINT**: Unity AI Gateway-enabled inference tables close the loop between production monitoring and offline evaluation.
+
+## Scorers for evaluation via MLflow
+### Overview of scorers
+> **NOTE**: MLflow stores evaluation results in a MLflow Tracking Server.
+>
+> **Reference**: [Evaluation Quickstart, **mlflow.org/docs/latest/genai/eval-monitor/quickstart**](https://mlflow.org/docs/latest/genai/eval-monitor/quickstart/)
+> 
+> **Context**: ["Architecture", `mlflow.md`](./mlflow.md#architecture)
+
+Scorers are a key component of the MLflow evaluation framework, providing a unified interface to define evaluation criteria for models, agents, and applications. Scorers evaluate (quantitatively or qualitatively) how well your application did based on the evaluation criteria. This could be a pass/fail, true/false, numerical value, or a categorical value.
+
+> **Reference**: [LLM Judges and Scorers, **mlflow.org/docs/latest/genai/eval-monitor/scorers**](https://mlflow.org/docs/latest/genai/eval-monitor/scorers/)
+
+> **NOTE**: LLM judges (also called simply "judges") are a type of scorer. In some material, you may see "judges" and "scorers" used somewhat synonymously, or see "scorers" spoken of as a subcategory of "judges". I acknowledge this inconsistency in terminology, and I am flagging it so you can interpret such material without confusion. However, I shall be using the terms more strictly, with judges referring to "LLM judges" in particular and scorers being the parent category, not the subcategory. I have based this decision on the following quote in MLflow's official documentation:
+>
+> "We'll refer to LLM judges and code-based scorers separately, but in the API, both LLM judges and code-based scorers are classified as types of scorers, such as in the functions `list_scorers` and `get_scorer`."
+>
+> **Source**: [LLM Judges and Scorers, **mlflow.org/docs/latest/genai/eval-monitor/scorers**](https://mlflow.org/docs/latest/genai/eval-monitor/scorers/)
+
+### Spectrum of scorers
+The spectrum of scorers, based on customisability:
+
+- Minimal customisation
+  > Built-in judges:
+  > 
+  > - Research-validated pre-trained LLM judges
+  > - Examples include:
+  >   - `Correctness`
+  >   - `Safety`
+  >   - `RetrievalGroundedness`
+- Moderate customisation
+  > Guideline judges:
+  > 
+  > - Natural-language rules for style and factuality
+- Full customisation
+  > Custom LLM judges via `make_judge()`:
+  > 
+  > - Scores
+  > - Categories
+  > - Booleans
+- Full customisation (deterministic)
+  > Code-based scorers:
+  > 
+  > - Exact match
+  > - Format validation, metrics
+- Full customisation (external)
+  > Third-party scorers:
+  > 
+  > - Open-source evaluation frameworks
+
+### Evaluation steps with scorers
+A typical evaluation has 4 steps:
+
+1. Define agent as a traced function
+2. Choose and instantiate scorer(s)
+3. Build dataset (inputs + expectations)
+4. Evaluate using `mlflow.genai.evaluate()`
+
+> **NOTE**: You can run multiple scorers at once, with a single `mlflow.genai.evaluate()` call.
+
+## Evaluation feedback objects
+Structured `Feedback` objects (and not just scalar scores) are returned by all MLflow judges as well as the custom scorers/judges that are specifically defined to return `Feedback` objects. This makes evaluation results interpretable and actionable. A `Feedback` object has the following attributes:
+
+- `value`
+  > The score or boolean.
+- `rationale`
+  > Human-readable explanation; rationales matter for:
+  >
+  > - Debugging (why it failed, not just that it failed)
+  > - Judge validation (verify judge's own reasoning is correct)
+  > - Pattern identification (common themes reveal issues)
+  > - Communication (explain results to stakeholders)
+- `source`
+  > `AssessmentSource` (type + ID); note that:
+  > 
+  > - For `@scorer`, source is auto-populated as `CODE`
+  >   > See ["Custom scorers" below for reference](#custom-scorers)
+  > - For `make_judge()`, auto-populated as `LLM_JUDGE`
+  >   > See ["Custom scorers" below for reference](#custom-scorers)
+  > 
+  > *Set manually only when calling your own LLM inside a `@scorer`.*
+- `metadata`
+  > Additional context (given as a dictionary)
+
+### Specific scorer notes
+#### Individual-turn vs. multi-turn judges
+For conversational AI systems, MLflow also provides built-in judges that evaluate entire conversations rather than individual turns. These judges analyse the complete conversation history to assess quality patterns that emerge over multiple interactions. Examples include `ConversationCompleteness`, `UserFrustration`, `KnowledgeRetention`, etc.
+
+> **Reference**: ["Multi-turn judges", Built-in LLM judges, **docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/concepts/judges**](https://docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/concepts/judges/#multi-turn-judges)
+
+#### Guideline judges
+While built-in judges cover common criteria, many evaluation needs are specific to your business: tone, compliance, formatting, or domain-specific rules. Guideline judges let you express these requirements in natural language, making evaluation accessible to domain experts without code changes. Guideline judges bridge the gap between built-in judges and fully custom evaluation logic. They let domain experts define quality standards in natural language:
+
+1. Global guidelines for uniform criteria
+    > Same rules applied to every row.
+    > 
+    > E.g.: Tone, formatting, compliance.
+2. Per-row guidelines for scenario-specific validation
+    > Different rules per example.
+    > 
+    > E.g.: Scenario-specific evaluation criteria.
+
+> **PRACTICAL NOTE**: In the guidelines, refer to inputs as "the request" and outputs as "the response". The LLM judge automatically extracts request/response data from your trace. Hence, when writing guidelines, always frame them in terms of "the request" (inputs) and "the response" (outputs).
+>
+> **Reference**: [Create a guidelines LLM judge, **docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/concepts/judges/guidelines**](https://docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/concepts/judges/guidelines/)
+
+#### Custom scorers
+When built-in and guideline judges do not cover your specific evaluation needs, MLflow supports fully custom evaluation logic: both code-based scorers for deterministic checks and custom LLM judges for sophisticated assessments.
+
+> **NOTE**: Both `@scorer` (deterministic scorer) and `make_judge()` (custom LLM judge) are supported in offline evaluation (`mlflow.genai.evaluate()`) and production monitoring (`ScorerScheduleConfig`).
+
+##### Deterministic scorer
+The `@scorer` decorator converts a Python function into a reusable evaluation component. You write the evaluation logic directly in Python, thus having full control over scoring decisions, data access, and error handling. Use this when evaluation criteria can be expressed as deterministic code (format checks, length validation, keyword matching, schema verification). The scorer function itself can accept any combination of these keyword arguments:
+
+| Parameter | Type | Description |
+|---|---|---|
+| `inputs` | `dict[str, Any]` | The app's raw input (argument names → values) |
+| `outputs` | `Any` | The app's raw output |
+| `expectations` | `dict[str, Any]` | Ground truth labels (e.g., expected facts, guidelines) |
+| `trace` | `mlflow.entities.Trace` | Complete trace with all spans and metadata |
+
+As for return, we have 2 options:
+
+- `Feedback` object (see ["Evaluation feedback objects" above](#evaluation-feedback-objects))
+- Primitive return ("yes", "no"; no rationale)
+
+##### Custom LLM judges
+*These are for evaluation criteria not covered by built-in/guideline judges.*
+
+
+Custom LLM judges enable:
+
+- Domain-specific
+  > Criteria unique to your application.
+- Nuanced assessment
+  > Beyond what built-in judges capture.
+- Proprietary standards
+  > Regulations and compliance specific to the organisation.
+- Multi-signal logic
+  > Combine multiple data sources (e.g. traces, feedback, etc.).
+
+---
+
+The `make_judge()` API lets you define evaluation criteria in natural language. MLflow handles the LLM invocation, response parsing, and `Feedback` object generation (see: ["Evaluation feedback objects" above](#evaluation-feedback-objects)) automatically. Unlike `@scorer` where you write evaluation logic in Python, `make_judge()` lets you describe what to evaluate in natural language. MLflow manages the LLM call, response parsing, and structured output enforcement. Use this when evaluation requires subjective reasoning that is hard to express as deterministic code.
