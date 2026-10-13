@@ -40,7 +40,7 @@
       - [Custom scorers](#custom-scorers)
         - [Deterministic scorer](#deterministic-scorer)
         - [Custom LLM judges](#custom-llm-judges)
-    - [Iterative development of custom judges/scorers](#iterative-development-of-custom-judgesscorers)
+      - [Iterative development of custom judges/scorers](#iterative-development-of-custom-judgesscorers)
 
 ---
 
@@ -543,7 +543,7 @@ Custom LLM judges enable:
 
 The `make_judge()` API lets you define evaluation criteria in natural language. MLflow handles the LLM invocation, response parsing, and `Feedback` object generation (see: ["Evaluation feedback objects" above](#evaluation-feedback-objects)) automatically. Unlike `@scorer` where you write evaluation logic in Python, `make_judge()` lets you describe what to evaluate in natural language. MLflow manages the LLM call, response parsing, and structured output enforcement. Use this when evaluation requires subjective reasoning that is hard to express as deterministic code.
 
-### Iterative development of custom judges/scorers
+#### Iterative development of custom judges/scorers
 In practice, out-of-the-box judges such as 'Groundedness' or 'Safety' struggle to understand your domain-specific data and criteria. Successful practitioners analyse real data to uncover domain-specific failure modes and then define custom evaluation criteria from the ground up. The general workflow of how to define a good judge and iterate on it with MLflow is given below:
 
 1. Generate traces or collect them from production
