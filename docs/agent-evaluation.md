@@ -64,29 +64,29 @@ Agent evaluation frameworks measure 4 interconnected dimensions.
 > Each addresses a different failure mode in agent reliability.
 
 1. Task success
-  > Has the agent accomplised its assigned objective?
-  > 
-  > **NOTE**: This requires precise definition, and may be:
-  > 
-  > - Outcome-based (as per output)
-  > - Process-based (as per steps taken)
-  > - Quality-based (as per feedback/external qualitative evaluation)
+    > Has the agent accomplised its assigned objective?
+    > 
+    > **NOTE**: This requires precise definition, and may be:
+    > 
+    > - Outcome-based (as per output)
+    > - Process-based (as per steps taken)
+    > - Quality-based (as per feedback/external qualitative evaluation)
 2. Tool use quality
-  > Has the agent invoked:
-  > 
-  > - The right tools?
-  > - With the correct arguments/parameters?
-  > - At the appropriate time(s)?
+    > Has the agent invoked:
+    > 
+    > - The right tools?
+    > - With the correct arguments/parameters?
+    > - At the appropriate time(s)?
 3. Reasoning coherence
-  > Was the agent's decision logical and justified given available info?
-  > 
-  > **NOTE**: This touches on the agent's reasoning's interpretability.
-  > 
-  > Read more: [Interpretability, **pranigopu.github.io/foundations-of-agentic-ai/interpretability.html**](https://pranigopu.github.io/foundations-of-agentic-ai/interpretability.html)
+    > Was the agent's decision logical and justified given available info?
+    > 
+    > **NOTE**: This touches on the agent's reasoning's interpretability.
+    > 
+    > Read more: [Interpretability, **pranigopu.github.io/foundations-of-agentic-ai/interpretability.html**](https://pranigopu.github.io/foundations-of-agentic-ai/interpretability.html)
 3. Cost-performance trade-off
-  > What does each successful task cost relative to value delivered?
-  > 
-  > **NOTE**: Cost may be measured in tokens, API calls, latency, etc.
+    > What does each successful task cost relative to value delivered?
+    > 
+    > **NOTE**: Cost may be measured in tokens, API calls, latency, etc.
 
 This presents a significant shift from model evaluation.
 
@@ -221,11 +221,11 @@ MLflow's `mlflow.genai.evaluate()` function provides the interface to MLflow's g
 
 ## Core components of MLflow's evaluation architecture
 1. Evaluation Dataset
-  > Inputs, expectations, outputs.
+    > Inputs, expectations, outputs.
 2. Scorers (Judges)
-  > Built-in, custom, code-based.
+    > Built-in, custom, code-based.
 3. Predict Function
-  > Omitted if evaluating pre-generated outputs ("answer sheet" mode).
+    > Omitted if evaluating pre-generated outputs ("answer sheet" mode).
 
 ```
 (1)--+
