@@ -251,13 +251,13 @@ model_id (LoggedModel linkage (optional))- --+                                 |
 
 ## MLflow evaluation workflow
 1. Data loading
-  > Validate structure
+    > Validate structure
 2. Output generation
-  > Call `predict_fn` or use pre-generated/obtained outputs.
+    > Call `predict_fn` or use pre-generated/obtained outputs.
 3. Trace creation
-  > Auto-instrumented; see ["Observability via MLflow Tracing for evaluation" in this document](#observability-via-mlflow-tracing-for-evaluation).
+    > Auto-instrumented; see ["Observability via MLflow Tracing for evaluation" in this document](#observability-via-mlflow-tracing-for-evaluation).
 4. Scorer execution
-  > Apply judges
+    > Apply judges
 5. Aggregate and log metrics to MLflow
 
 ## Observability via MLflow Tracing for evaluation
