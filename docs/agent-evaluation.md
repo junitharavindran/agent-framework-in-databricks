@@ -501,7 +501,15 @@ When built-in and guideline judges do not cover your specific evaluation needs, 
 > **NOTE**: Both `@scorer` (deterministic scorer) and `make_judge()` (custom LLM judge) are supported in offline evaluation (`mlflow.genai.evaluate()`) and production monitoring (`ScorerScheduleConfig`).
 
 ##### Deterministic scorer
-The `@scorer` decorator converts a Python function into a reusable evaluation component. You write the evaluation logic directly in Python, thus having full control over scoring decisions, data access, and error handling. Use this when evaluation criteria can be expressed as deterministic code (format checks, length validation, keyword matching, schema verification). The scorer function itself can accept any combination of these keyword arguments:
+The `@scorer` decorator converts a Python function into a reusable evaluation component. You write the evaluation logic directly in Python, thus having full control over scoring decisions, data access, and error handling. Use this when evaluation criteria can be expressed as deterministic code (format checks, length validation, keyword matching, schema verification).
+
+> **TECHNICAL NOTE: Decorators in Python**: Decorators in Python are flexible way to modify or extend behavior of functions or methods, without changing their actual code. A decorator is essentially a function that takes another function as an argument and returns a new function with enhanced functionality. They allow us to add additional functionality (e.g. logging, data validation, memoization, etc.) to existing functions or methods in a clean, reusable way.
+>
+> **Reference**: [Decorators in Python, **www.geeksforgeeks.org/python/decorators-in-python**](https://www.geeksforgeeks.org/python/decorators-in-python/)
+
+---
+
+The scorer function can accept any combination of these keyword arguments:
 
 | Parameter | Type | Description |
 |---|---|---|
