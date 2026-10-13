@@ -40,6 +40,7 @@
       - [Custom scorers](#custom-scorers)
         - [Deterministic scorer](#deterministic-scorer)
         - [Custom LLM judges](#custom-llm-judges)
+    - [Iterative development of custom judges/scorers](#iterative-development-of-custom-judgesscorers)
 
 ---
 
@@ -541,3 +542,28 @@ Custom LLM judges enable:
 ---
 
 The `make_judge()` API lets you define evaluation criteria in natural language. MLflow handles the LLM invocation, response parsing, and `Feedback` object generation (see: ["Evaluation feedback objects" above](#evaluation-feedback-objects)) automatically. Unlike `@scorer` where you write evaluation logic in Python, `make_judge()` lets you describe what to evaluate in natural language. MLflow manages the LLM call, response parsing, and structured output enforcement. Use this when evaluation requires subjective reasoning that is hard to express as deterministic code.
+
+### Iterative development of custom judges/scorers
+In practice, out-of-the-box judges such as 'Groundedness' or 'Safety' struggle to understand your domain-specific data and criteria. Successful practitioners analyse real data to uncover domain-specific failure modes and then define custom evaluation criteria from the ground up. The general workflow of how to define a good judge and iterate on it with MLflow is given below:
+
+1. Generate traces or collect them from production
+    > Start with generating traces from a set of realistic input samples or ideally sample production traces (if available). This forms the basis on which evaluation can be done.
+2. Gather human feedback
+    > Collect feedback from domain experts or users. MLflow provides a UI and SDK for collecting feedback on traces. ***MLflow Feedback*** provides a comprehensive system for capturing quality evaluations from multiple sources - whether automated AI judges, programmatic rules, or human reviewers. This systematic approach to feedback collection enables you to understand and improve your LLM application or AI agent's performance at scale.
+    > 
+    > **Reference**: [Feedback Collection, **mlflow.org/docs/latest/genai/assessments/feedback**](https://mlflow.org/docs/latest/genai/assessments/feedback/)
+3. Error analysis
+    > Analyse the common failure modes (error categories) from the feedback. To organize traces into error categories, use Trace Tag to label and filter traces. Tags are mutable key-value pairs that you can attach to traces to add valuable labels and context for grouping and filtering traces. For example, you can tag traces based on the topic of the user's input or the type of request being processed and group them together for analysis and quality evaluation.
+    > 
+    > **Reference**: [Setting Trace Tags, **mlflow.org/docs/latest/genai/tracing/attach-tags**](https://mlflow.org/docs/latest/genai/tracing/attach-tags/)
+4. Translate failure modes into judges/scorers
+    > Define judges that check for the common failure modes. For example, if the answer is in an incorrect format, you may define an LLM Judge that checks if the format is correct. We recommend starting with a simple instruction and then iteratively refine it.
+5. Align judges with human feedback
+    > LLM-as-a-Judge has natural biases. Relying on biased evaluation will lead to incorrect decision making. Therefore, it is important to refine the scorer to align with human feedback. You can manually iterate on prompts or instructions, or use the Automatic Judge Alignment feature of MLflow (an algorithmic alignment process) to optimise the instruction with a state-of-the-art algorithm powered by DSPy (a Python framework for building AI systems).
+    > 
+    > **References**:
+    > 
+    > - [Judge Alignment: Teaching AI to Match Human Preferences, **mlflow.org/docs/latest/genai/eval-monitor/scorers/llm-judge/alignment**](https://mlflow.org/docs/latest/genai/eval-monitor/scorers/llm-judge/alignment/)
+    > - [**dspy.ai**](https://dspy.ai/current/)
+
+> **Reference**: ["How to Write a Good Judge?", LLM Judges and Scorers, **mlflow.org/docs/latest/genai/eval-monitor/scorers**](https://mlflow.org/docs/latest/genai/eval-monitor/scorers/#how-to-write-a-good-judge)
