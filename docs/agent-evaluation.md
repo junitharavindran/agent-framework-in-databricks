@@ -28,7 +28,7 @@
     - [MLflow Tracing overview](#mlflow-tracing-overview)
     - [Traces and spans in MLFlow](#traces-and-spans-in-mlflow)
     - [MLflow Tracing in Databricks](#mlflow-tracing-in-databricks)
-  - [Production monitoring via AI Gateway integration](#production-monitoring-via-ai-gateway-integration)
+  - [Production monitoring via Unity Gateway integration](#production-monitoring-via-unity-gateway-integration)
   - [Scorers for evaluation via MLflow](#scorers-for-evaluation-via-mlflow)
     - [Overview of scorers](#overview-of-scorers)
     - [Spectrum of scorers](#spectrum-of-scorers)
@@ -208,12 +208,12 @@ The aim of preparing for evaluation is to create a feedback loop where:
 | Storage and versioning | Maintain versioning, lineage, sharing, and governance of evaluation datasets to ensure development, improvement, security, and collaboration |
 
 # Evaluation-driven development in Databricks
-> Using MLflow and Unity AI Gateway.
+> Using MLflow and Unity Gateway.
 
 > **Context**:
 > 
 > - [MLflow](./mlflow.md)
-> - ["Unity AI Gateway as centralised governance", `agent-deployment-on-databricks.md`](./agent-deployment-on-databricks.md#unity-ai-gateway-as-centralised-governance)
+> - ["Unity Gateway as centralised governance", `agent-deployment-on-databricks.md`](./agent-deployment-on-databricks.md#unity-gateway-as-centralised-governance)
 
 ## Overview of MLflow's gen-AI evaluation framework
 A core tenet of MLflow's evaluation capabilities is evaluation-driven development, which is discussed in ["Evaluation-driven development" in this document](#evaluation-driven-development). MLflow provides a comprehensive evaluation framework specifically designed for gen-AI applications, offering automated judges, tracing capabilities, and the means to add custom judges and tracing.
@@ -341,16 +341,18 @@ Databricks offers a fully-managed deployment of the open-source MLflow platform,
 
 > **Reference**: [Tracing overview, **docs.databricks.com/aws/en/mlflow3/genai/tracing/overview**](https://docs.databricks.com/aws/en/mlflow3/genai/tracing/overview)
 
-## Production monitoring via AI Gateway integration
-> **Context**: ["Unity AI Gateway as centralised governance", `agent-deployment-on-databricks.md`](./agent-deployment-on-databricks.md#unity-ai-gateway-as-centralised-governance)
+## Production monitoring via Unity Gateway integration
+> **NOTE**: AI Gateway is legacy; migrate to Unity Gateway.
 
-When a deployed agent calls a model serving endpoint for inference, that request passes through the Unity AI Gateway, which is the centralised AI governance layer on Databricks. The gateway sits between your application and the serving endpoints, providing guardrails, rate limiting, usage tracking, and traffic management without requiring changes to your agent code. As per Databricks' own documentation:
+> **Context**: ["Unity Gateway as centralised governance", `agent-deployment-on-databricks.md`](./agent-deployment-on-databricks.md#unity-gateway-as-centralised-governance)
+
+When a deployed agent calls a model serving endpoint for inference, that request passes through the Unity Gateway, which is the centralised AI governance layer on Databricks. The gateway sits between your application and the serving endpoints, providing guardrails, rate limiting, usage tracking, and traffic management without requiring changes to your agent code. As per Databricks' own documentation:
 
 > "Unity Gateway is the Databricks governance solution for enterprise AI. Built on Unity Catalog, it extends governance beyond your data and AI assets to the runtime interactions between models, agents, MCP servers, and tools. Control which AI services teams can use, route and manage AI traffic, set guardrails with service policies, and monitor usage from one control plane."
 > 
 > **Reference**: [AI governance with Unity Gateway, **docs.databricks.com/aws/en/ai-gateway**](https://docs.databricks.com/aws/en/ai-gateway/)
 
-Importantly, When you deploy agents to Model Serving (see: ["Model-serving pattern", `agent-deployment-on-databricks.md`](./agent-deployment-on-databricks.md#model-serving-pattern)), Databricks enables Unity AI Gateway-enabled inference tables, which creates a feedback loop from production back into evaluation. Unity Gateway inference tables log requests and responses from your model services to UC Delta tables. You can use this data for monitoring, debugging, and optimising your models. Common use cases include:
+Importantly, When you deploy agents to Model Serving (see: ["Model-serving pattern", `agent-deployment-on-databricks.md`](./agent-deployment-on-databricks.md#model-serving-pattern)), Databricks enables Unity Gateway-enabled inference tables, which creates a feedback loop from production back into evaluation. Unity Gateway inference tables log requests and responses from your model services to UC Delta tables. You can use this data for monitoring, debugging, and optimising your models. Common use cases include:
 
 - Debugging
   > Analyse request and response payloads to troubleshoot issues.
@@ -389,7 +391,7 @@ Inference table benefits:
 
 ---
 
-> **KEY POINT**: Unity AI Gateway-enabled inference tables close the loop between production monitoring and offline evaluation.
+> **KEY POINT**: Unity Gateway-enabled inference tables close the loop between production monitoring and offline evaluation.
 
 ## Scorers for evaluation via MLflow
 ### Overview of scorers

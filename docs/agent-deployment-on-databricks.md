@@ -13,7 +13,7 @@
     - [Model-serving pattern](#model-serving-pattern)
     - [App-based pattern](#app-based-pattern)
     - [Comparing both patterns](#comparing-both-patterns)
-    - [Unity AI Gateway as centralised governance](#unity-ai-gateway-as-centralised-governance)
+    - [Unity Gateway as centralised governance](#unity-gateway-as-centralised-governance)
   - [Observability](#observability)
   - [Evaluation](#evaluation)
   - [Monitoring](#monitoring)
@@ -178,8 +178,10 @@ For a more practically-grounded comparison:
 >
 > **Reference**: [Introduction to A/B Testing, **www.geeksforgeeks.org/blogs/what-is-a-b-testing**](https://www.geeksforgeeks.org/blogs/what-is-a-b-testing/)
 
-### Unity AI Gateway as centralised governance
-When a deployed agent calls a model serving endpoint for inference, that request passes through the Unity AI Gateway, which is the centralised AI governance layer on Databricks. The gateway sits between your application and the serving endpoints, providing guardrails, rate limiting, usage tracking, and traffic management without requiring changes to your agent code. As per Databricks' own documentation:
+### Unity Gateway as centralised governance
+> **NOTE**: AI Gateway is legacy; migrate to Unity Gateway.
+
+When a deployed agent calls a model serving endpoint for inference, that request passes through the Unity Gateway, which is the centralised AI governance layer on Databricks. The gateway sits between your application and the serving endpoints, providing guardrails, rate limiting, usage tracking, and traffic management without requiring changes to your agent code. As per Databricks' own documentation:
 
 > "Unity Gateway is the Databricks governance solution for enterprise AI. Built on Unity Catalog, it extends governance beyond your data and AI assets to the runtime interactions between models, agents, MCP servers, and tools. Control which AI services teams can use, route and manage AI traffic, set guardrails with service policies, and monitor usage from one control plane."
 > 
@@ -188,7 +190,7 @@ When a deployed agent calls a model serving endpoint for inference, that request
 Considering an app-based deployment pattern:
 
 ```
-Databricks App <--> Unity AI Gateway <--> Model Serving endpoint
+Databricks App <--> Unity Gateway <--> Model Serving endpoint
 (agent code)        - Guardrails          (foundational model)
                     - Rate limits
                     - Usage tracking
@@ -198,11 +200,11 @@ Databricks App <--> Unity AI Gateway <--> Model Serving endpoint
 
 > **KEY POINT 1**: The gateway governs more than just agent traffic. It provides a unified governance layer across LLM endpoints, MCP servers, and coding agents (such as Cursor, Claude Code, and Codex CLI), ***giving platform teams a single place to manage AI access across the organisation.***
 
-> **KEY POINT 2**: The Unity AI Gateway is transparent to your agent code. Your app calls the serving endpoint as usual; the gateway intercepts and governs the request automatically. No code changes are needed to benefit from rate limiting, guardrails, or usage tracking. Rather, these are configured at the platform level (i.e. via the Unity AI Gateway platform configurations).
+> **KEY POINT 2**: The Unity Gateway is transparent to your agent code. Your app calls the serving endpoint as usual; the gateway intercepts and governs the request automatically. No code changes are needed to benefit from rate limiting, guardrails, or usage tracking. Rather, these are configured at the platform level (i.e. via the Unity Gateway platform configurations).
 
 ---
 
-Key capabilities of Unity AI Gateway:
+Key capabilities of Unity Gateway:
 
 - **Guardrails**: <br> Enforce safety and content policies
   > Do so on requests and responses at the gateway level.
