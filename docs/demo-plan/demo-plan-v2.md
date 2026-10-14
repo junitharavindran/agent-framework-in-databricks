@@ -6,7 +6,7 @@
 
 **Contents**:
 
-- [Key abbrevations](#key-abbrevations)
+- [Key abbreviations](#key-abbreviations)
 - [About](#about)
 - [How to read this plan](#how-to-read-this-plan)
   - [Coverage map](#coverage-map)
@@ -28,9 +28,9 @@
 
 ---
 
-# Key abbrevations
+# Key abbreviations
 
-| Abbrevation | Full form |
+| Abbreviation | Full form |
 | --- | --- |
 | UC | Unity Catalog |
 
@@ -296,12 +296,12 @@ Clarify:
     > Hosted by you as an app.
   - External
   - Managed
-    > E.g. a UC function exposed as an MCP tool.
+    > E.g.: A UC function exposed as an MCP tool.
 - UC for data governance
   > Especially: what IS UC and how does it govern?
 - How MLflow actually manages agent lifecycle in specifics
 
-Suggested demo 1 (app-based pattern):
+Suggested demos #1 (app-based pattern):
 
 - Same demo as ["MCP architecture and tooling" above](#mcp-architecture-and-tooling)
   > But deployed in Databricks.
@@ -327,11 +327,15 @@ Suggested demo 1 (app-based pattern):
   - Show the MLflow record of the deployed agent in one view
     > Show version, traces, evaluation results.
 
-Suggested demo 2 (model-serving pattern):
+> Create separate demo per MCP server type.
+
+Suggested demos #2 (model-serving pattern):
 
 - Replicate the above as much as possible
 - Add MCP tooling
 - Mention additional components needed for production use
+
+> Create separate demo per MCP server type.
 
 # Agentic app dev/deployment principles
 ## Evaluation-driven development
