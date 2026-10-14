@@ -1,4 +1,4 @@
-# Demo Plan V3
+<h1>Demo Plan V3</h1>
 
 > AI-enhanced.
 
@@ -6,7 +6,6 @@
 
 **Contents**:
 
-- [Demo Plan V3](#demo-plan-v3)
 - [Key abbreviations](#key-abbreviations)
 - [About](#about)
 - [How to read this plan](#how-to-read-this-plan)
