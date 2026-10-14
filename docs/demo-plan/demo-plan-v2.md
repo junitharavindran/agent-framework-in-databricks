@@ -13,7 +13,7 @@
   - [Layering map](#layering-map)
   - [Demo hygiene](#demo-hygiene)
 - [Core concepts](#core-concepts)
-  - [MLflow as a deployment lifecycle management](#mlflow-as-a-deployment-lifecycle-management)
+  - [MLflow as a deployment lifecycle manager](#mlflow-as-a-deployment-lifecycle-manager)
   - [MLflow as an observability framework](#mlflow-as-an-observability-framework)
   - [MLflow as an evaluation framework](#mlflow-as-an-evaluation-framework)
   - [MCP architecture and tooling](#mcp-architecture-and-tooling)
@@ -33,6 +33,8 @@
 | Abbreviation | Full form |
 | --- | --- |
 | UC | Unity Catalog |
+| DAB | Declarative Automation Bundles (formerly Databricks Asset Bundles) |
+| MCP | Model Context Protocol |
 
 # About
 The demo plan is meant to organise the practical demonstration of the deployment of agentic applications in Databricks such that the core concepts are clarified (in terms of what they mean in practice), the principles behind agentic application development and deployment are clarified (e.g. evaluation-driven development, context hygiene (i.e. keeping agent context well-scoped and preventing context rot), interpretability (of the agentic application's processes and outcomes), etc.), flexibility and scalability are addressed, and practical components are clarified (e.g. tooling, governance, etc.).
@@ -101,7 +103,7 @@ Keep each demo:
 - As concise and bare-bones as possible
 - As direct about the concept as possible
 
-## MLflow as a deployment lifecycle management
+## MLflow as a deployment lifecycle manager
 Clarify:
 
 - What lifecycle management concretely consists of

@@ -8,7 +8,7 @@
 
 - [About](#about)
 - [Core concepts](#core-concepts)
-  - [MLflow as a deployment lifecycle management](#mlflow-as-a-deployment-lifecycle-management)
+  - [MLflow as a deployment lifecycle manager](#mlflow-as-a-deployment-lifecycle-manager)
   - [MLflow as an observability framework](#mlflow-as-an-observability-framework)
   - [MLflow as an evaluation framework](#mlflow-as-an-evaluation-framework)
   - [MCP architecture and tooling](#mcp-architecture-and-tooling)
@@ -33,7 +33,7 @@ Keep each demo:
 - As concise and bare-bones as possible
 - As direct about the concept as possible
 
-## MLflow as a deployment lifecycle management
+## MLflow as a deployment lifecycle manager
 Clarify:
 
 - What lifecycle management concretely consists of
