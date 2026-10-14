@@ -46,7 +46,7 @@
 | OBO | On-behalf-of-user authorization (the app calls a resource with the end user's identity, not its own) |
 | SP | Service principal |
 
-> **NOTE: Naming**: The governance layer is called **Unity Gateway**. Some Databricks pages shorten it to "Unity Gateway", which is the name we shall be using in this plan. The earlier product is "AI Gateway (legacy)" and is not used.
+> **NOTE: Naming**: The governance layer is called **Unity AI Gateway**. Some Databricks pages shorten it to "Unity Gateway", which is the name we shall be using in this plan. The earlier product is "AI Gateway (legacy)" and is not used.
 
 # About
 The demo plan is meant to organise the practical demonstration of the deployment of agentic applications in Databricks such that the core concepts are clarified (in terms of what they mean in practice), the principles behind agentic application development and deployment are clarified (e.g. evaluation-driven development, context hygiene (i.e. keeping agent context well-scoped and preventing context rot), interpretability (of the agentic application's processes and outcomes), etc.), flexibility and scalability are addressed, and practical components are clarified (e.g. tooling, governance, etc.).
@@ -141,24 +141,29 @@ Clarify:
   > - Comparing versions
   > - Promoting/rolling back
   > - Tying a failure to a version
-- **What is actually versioned**
-  > State it explicitly in the demo:
+- **What a "version" is**
+  > State it explicitly in the demo. A version is the pair of:
   > 
   > - The guideline prompts (prompt versions)
   > - The app/model snapshot that used them
+  >
+  > **NOTE**:
+  > 
+  > - Use "version" for this pair throughout the demo
+  > - Use "deploy" only for the act of serving a version
 - What are the uses of such management
   > E.g.:
   > 
-  > - Reusing an older high-performing deployment
-  > - Debugging unique failures within a certain deployment
+  > - Reusing an older high-performing version
+  > - Debugging unique failures within a certain version
 
 Suggested demo:
 
-- Deploy 2 simple AI-based experiments
-- Ensure both have:
+- Create 2 versions of a simple AI-based app
+- Ensure both versions have:
   - Different guideline prompts
   - The same task prompts
-- Compare deployments:
+- Compare the 2 versions:
   - Through MLflow UI
   - Programmatically
 - Test case 1 (reuse):
@@ -166,7 +171,7 @@ Suggested demo:
   - Load/serve it again
 - Test case 2 (debug):
   - Send 1 input that fails on one version only
-  - Locate the failure through that version's record.
+  - Locate the failure through that version's record
 - Test case 3 (promote and roll back):
   - Point an alias (e.g. `production`) at the better version
   - Flip the alias to the other version and back
@@ -452,7 +457,7 @@ Clarify:
 > - At least 1 MCP-based tool
 > - MLflow tracing on the agents
 > - A runnable evaluation dataset
-> - A stated agent runtime: <be> Agent Bricks CLI (recommended) or the legacy MLflow `AgentServer`
+> - A stated agent runtime: <br> Agent Bricks CLI (recommended) or the legacy MLflow `AgentServer`
 
 How the local demos carry over:
 
