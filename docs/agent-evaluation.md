@@ -222,6 +222,21 @@ A core tenet of MLflow's evaluation capabilities is evaluation-driven developmen
 
 > **NOTE**: MLflow provides an evaluation framework for gen-AI applications, but it is not limited to these applications. It also provides an evaluation framework for traditional ML and deep learning, including model training and testing (see the general ML documentation [MLflow: AI Engineering Platform for LLMs, Agents, & Models, **mlflow.org/docs/latest/ml**](https://mlflow.org/docs/latest/ml/), as opposed to the gen-AI-specific documentation [MLflow: AI Engineering Platform for LLMs and Agents, **mlflow.org/docs/latest/genai**](https://mlflow.org/docs/latest/genai/)). However, we shall be focusing on MLflow's gen-AI-related offerings.
 
+> **[UPDATE]**: The legacy LLM evaluation API `mlflow.evaluate` has been deprecated as of MLflow 3.0.0; for LLM applications and agents, `mlflow.genai.evaluate()` is the replacement. As per MLflow's migration guide:
+>
+> - The legacy API will likely be removed in MLflow 3.7.0 or a few releases after that
+> - Non-LLM workloads should not be migrated to the new evaluation suite; they should use `mlflow.models.evaluate()`, which stays compatible with `mlflow.evaluate` but drops the LLM-specific features
+> - The new API takes a callable `predict_fn` instead of an MLflow model URI, and a dataset with `inputs`, `expectations` and (optionally) `outputs` or `trace` columns; configuration knobs such as `model_type`, `targets` and `feature_names` are removed
+> - The legacy metrics (the `mlflow.metrics` namespace) have documented replacements:
+>   - `latency` and `token_count`: traces already record latency (with span-level breakdown) and token counts for most popular LLM providers; a custom scorer can compute token counts otherwise
+>   - Heuristic NLP metrics (e.g. `toxicity`, `exact_match`, `rouge1`): code-based scorers (`@scorer`)
+>   - Retrieval metrics (`precision_at_k`, `recall_at_k`, `ndcg_at_k`): the new built-in retrieval judges or code-based scorers
+>   - Built-in LLM-as-a-judge metrics (e.g. `answer_similarity`, `answer_correctness`, `faithfulness`): the new built-in judges, or `make_judge()` where no built-in judge exists
+>   - Custom LLM-as-a-judge metrics (`make_genai_metric`, `make_genai_metric_from_prompt`): `make_judge()`
+> - When a Databricks Model Serving endpoint is used as the LLM judge's model, the provider is given as `databricks:/<endpoint-name>` rather than `endpoints:/<endpoint-name>`
+>
+> **Reference**: [Migrating from Legacy LLM Evaluation, **mlflow.org/docs/latest/genai/eval-monitor/legacy-llm-evaluation**](https://mlflow.org/docs/latest/genai/eval-monitor/legacy-llm-evaluation)
+
 MLflow's `mlflow.genai.evaluate()` function provides the interface to MLflow's gen-AI evaluation harness: a structured way to feed in test data, run your app, and automatically score the results - it helps you quickly execute your application for every record in your evaluation set and then run each output through your LLM judges and metric computations.
 
 > **CONCEPTUAL NOTE**: An evaluation harness is the infrastructure that runs your LLM/agent evaluations end-to-end. More precisely, an evaluation harness is the controlled combination of scripts, test data, permissions, execution boundaries, and network conditions used to assess a model, agent, or adjacent system before release.
@@ -341,6 +356,16 @@ Databricks offers a fully-managed deployment of the open-source MLflow platform,
 
 > **Reference**: [Tracing overview, **docs.databricks.com/aws/en/mlflow3/genai/tracing/overview**](https://docs.databricks.com/aws/en/mlflow3/genai/tracing/overview)
 
+> **[UPDATE]**: As per Databricks' documentation:
+>
+> - Storing traces as UC Delta tables is recommended for new and production workloads, and is configured per experiment through a UC trace location; without one, traces stay in the experiment's managed backend, which caps storage at 100,000 traces per experiment (see: ["Storing traces in UC", `agent-deployment-on-databricks.md`](./agent-deployment-on-databricks.md#storing-traces-in-uc))
+> - The tracing overview names the natural-language analysis of trace data "Genie Code"
+>
+> **References**:
+> 
+> - [Tracing overview, **docs.databricks.com/aws/en/mlflow3/genai/tracing/overview**](https://docs.databricks.com/aws/en/mlflow3/genai/tracing/overview)
+> - [Store OpenTelemetry traces in Unity Catalog, **docs.databricks.com/aws/en/mlflow3/genai/tracing/trace-unity-catalog**](https://docs.databricks.com/aws/en/mlflow3/genai/tracing/trace-unity-catalog)
+
 ## Production monitoring via Unity Gateway integration
 > **NOTE**: AI Gateway is legacy; migrate to Unity Gateway.
 
@@ -392,6 +417,10 @@ Inference table benefits:
 ---
 
 > **KEY POINT**: Unity Gateway-enabled inference tables close the loop between production monitoring and offline evaluation.
+
+> **[UPDATE]**: Databricks' documentation on AI Gateway (legacy) for serving endpoints lists which features each endpoint type supports (note that this describes the legacy gateway, not Unity Gateway). For Databricks agents endpoints, payload logging (inference tables) is supported, whereas permission and rate limiting, usage tracking, AI guardrails, fallbacks and traffic splitting are not; the "Available in Unity Gateway" entry is also not supported for them. Inference tables for route-optimized model serving endpoints are in Public Preview.
+>
+> **Reference**: [Governance for model serving endpoints (legacy), **docs.databricks.com/aws/en/ai-gateway/overview-serving-endpoints**](https://docs.databricks.com/aws/en/ai-gateway/overview-serving-endpoints)
 
 ## Scorers for evaluation via MLflow
 ### Overview of scorers
@@ -482,6 +511,10 @@ For conversational AI systems, MLflow also provides built-in judges that evaluat
 
 > **Reference**: ["Multi-turn judges", Built-in LLM judges, **docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/concepts/judges**](https://docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/concepts/judges/#multi-turn-judges)
 
+> **[UPDATE]**: Databricks' production monitoring documentation states that production monitoring includes multi-turn judges for evaluating entire conversations, and that, for multi-turn judges, assessments are attached to the first trace in each session.
+>
+> **Reference**: [Set up production monitoring, **docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/production-monitoring**](https://docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/production-monitoring)
+
 #### Guideline judges
 While built-in judges cover common criteria, many evaluation needs are specific to your business: tone, compliance, formatting, or domain-specific rules. Guideline judges let you express these requirements in natural language, making evaluation accessible to domain experts without code changes. Guideline judges bridge the gap between built-in judges and fully custom evaluation logic. They let domain experts define quality standards in natural language:
 
@@ -502,6 +535,18 @@ While built-in judges cover common criteria, many evaluation needs are specific 
 When built-in and guideline judges do not cover your specific evaluation needs, MLflow supports fully custom evaluation logic: both code-based scorers for deterministic checks and custom LLM judges for sophisticated assessments.
 
 > **NOTE**: Both `@scorer` (deterministic scorer) and `make_judge()` (custom LLM judge) are supported in offline evaluation (`mlflow.genai.evaluate()`) and production monitoring (`ScorerScheduleConfig`).
+
+> **[UPDATE]**: Databricks' production monitoring documentation (currently labelled Beta) configures online scorers through the scorer lifecycle methods `.register()`, `.start()`, `.update()` and `.stop()`, with `ScorerSamplingConfig` (`sample_rate` and `filter_string`) controlling which traces are evaluated; `ScorerScheduleConfig` is not mentioned in the production monitoring guide or the scorer lifecycle API reference. The same register-then-start pattern is documented for built-in judges, custom judges, code-based scorers and multi-turn judges. Since custom scorers are serialised so that the monitoring service can execute them remotely:
+>
+> - Custom `@scorer` functions must be defined and registered from a Databricks notebook
+> - Functions must be self-contained, with all imports inline in the function body
+> - Only `@scorer`-decorated scorers can be registered; class-based `Scorer` subclasses cannot be serialised for remote execution
+> - Type hints in the function signature that require imports cause serialisation failures
+>
+> **References**:
+> 
+> - [Set up production monitoring, **docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/production-monitoring**](https://docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/production-monitoring)
+> - [Scorer lifecycle management API reference, **docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/concepts/production-quality-monitoring**](https://docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/concepts/production-quality-monitoring)
 
 ##### Deterministic scorer
 The `@scorer` decorator converts a Python function into a reusable evaluation component. You write the evaluation logic directly in Python, thus having full control over scoring decisions, data access, and error handling. Use this when evaluation criteria can be expressed as deterministic code (format checks, length validation, keyword matching, schema verification).

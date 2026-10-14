@@ -101,10 +101,31 @@ MCP is actually 2 related protocols merged into a single standard:
 
 > **Reference**: [Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture)
 
+> **[UPDATE]**: In the 2026-07-28 revision of the specification:
+>
+> - The HTTP+SSE transport is reclassified as Deprecated; the migration path is Streamable HTTP
+> - SSE stream resumability and message redelivery (i.e. the `Last-Event-ID` header and SSE event IDs) are removed from the Streamable HTTP transport; a broken response stream loses the in-flight request, which the client must re-issue as a new request with a new request ID
+> - The standard request headers `Mcp-Method` and `Mcp-Name` are required on Streamable HTTP POST requests
+>
+> **Reference**: [Key Changes, **modelcontextprotocol.io/specification/2026-07-28/changelog**](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
+
 ## MCP's statelessness
 > "MCP is a stateless protocol. Every request carries the protocol version and the capabilities relevant to that request in its `_meta` field, so the server can process each request on its own. Clients should also identify themselves in the same field unless configured not to. Servers advertise their supported versions and capabilities through the mandatory server/discover request, which clients may send before any other request."
 > 
 > **Reference**: ["Statelessness and discovery", Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture#statelessness-and-discovery)
+
+> **[UPDATE]**: To clarify the above, as per the 2026-07-28 revision of the specification:
+>
+> - Servers MUST implement `server/discover`, whereas clients MAY call it before any other request (e.g. for up-front version selection, or as a backward-compatibility probe over STDIO)
+> - Calling `server/discover` is therefore optional for a client: since every request carries the same `_meta` fields, a client can send any request directly and handle a version error if one comes back
+> - The `initialize`/`notifications/initialized` handshake and the `Mcp-Session-Id` header (i.e. protocol-level sessions) are removed in this revision
+> - A version mismatch returns an `UnsupportedProtocolVersionError`
+> - Servers that need state across calls use explicit, server-minted handles passed as ordinary tool arguments
+>
+> **References**:
+> 
+> - [Key Changes, **modelcontextprotocol.io/specification/2026-07-28/changelog**](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
+> - ["Statelessness and discovery", Architecture overview, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture#statelessness-and-discovery)
 
 ## MCP's primitives
 > **NOTE**: Primitive => Pre-defined types (i.e. data interfaces) that are available directly (as opposed to composite types built from objects of other types).
@@ -138,6 +159,18 @@ MCP also defines primitives that clients can expose.
 
 > **Reference**: ["Primitives", Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture#primitives)
 
+> **[UPDATE]**: As per the 2026-07-28 revision of the specification:
+>
+> - The architecture overview lists elicitation as the client feature, with Sampling and Logging marked as deprecated client primitives (consistent with the note above); the changelog additionally deprecates Roots
+> - Deprecated features remain functional during the deprecation window, but new implementations should not adopt them; the suggested migrations are: pass directories/files via tool parameters, resource URIs or server configuration (instead of Roots), integrate directly with LLM provider APIs (instead of Sampling), and log to `stderr` (stdio) or use OpenTelemetry (instead of Logging)
+> - Server-initiated requests such as `roots/list`, `sampling/createMessage` and `elicitation/create` are replaced by the Multi Round-Trip Requests (MRTR) pattern: the server returns an `InputRequiredResult` (`resultType: "input_required"`) whose `inputRequests` field carries what it needs, and the client retries the original request with `inputResponses`
+> - Elicitation requests are delivered through the MRTR pattern
+>
+> **References**:
+> 
+> - [Key Changes, **modelcontextprotocol.io/specification/2026-07-28/changelog**](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
+> - ["Primitives", Architecture overview, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture#primitives)
+
 ---
 
 Hence, note...
@@ -164,9 +197,24 @@ Shutdown   | close connection
 
 The client sends an initialize request declaring its protocol version and capabilities. The server responds with its own capabilities. The client then sends an initialized notification to confirm readiness before normal message exchange begins.
 
+> **[UPDATE]**: The handshake described above belongs to the previous revision of the specification (2025-11-25). In the 2026-07-28 revision, the `initialize`/`notifications/initialized` exchange is removed. Instead, every request carries its protocol version and client capabilities in `_meta` (`io.modelcontextprotocol/protocolVersion` and `io.modelcontextprotocol/clientCapabilities`), and clients should also identify themselves via `io.modelcontextprotocol/clientInfo`. A client that wants to learn a server's capabilities up front can call `server/discover`, which is optional for the client (see: ["MCP's statelessness" in this document](#mcps-statelessness)).
+>
+> **References**:
+> 
+> - [Key Changes, **modelcontextprotocol.io/specification/2026-07-28/changelog**](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
+> - ["Statelessness and discovery", Architecture overview, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture#statelessness-and-discovery)
+
 **Tool discovery**:
 
 The client sends a `tools/list` request. The server returns all available tools with their names, descriptions, and input schemas. The agent uses these descriptions to decide when to call each tool in the tool invocation step described below.
+
+> **[UPDATE]**: In the 2026-07-28 revision of the specification:
+>
+> - `tools/list` results must carry the `ttlMs` field (a freshness hint in milliseconds) and the `cacheScope` field (`"public"` or `"private"`), so that clients can cache responses
+> - All results carry a required `resultType` field (`"complete"` for ordinary results)
+> - Servers should return tools from `tools/list` in a deterministic order, to enable client-side caching and improve LLM prompt cache hit rates
+>
+> **Reference**: [Key Changes, **modelcontextprotocol.io/specification/2026-07-28/changelog**](https://modelcontextprotocol.io/specification/2026-07-28/changelog)
 
 **Tool invocation**:
 

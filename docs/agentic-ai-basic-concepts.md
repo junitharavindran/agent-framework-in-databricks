@@ -124,3 +124,10 @@ data agent      research agent   general agent | workers
   - Receiving and processing data/information from the above
 
 The Databricks platform as a whole (especially Unity Catalog) is relevant for the 1st point. MCP is a key aspect of implementing the 2nd point. Another key aspect is vector search (for RAG). Both shall be discussed next. Next, it is key to know how Databricks (and Agent Bricks in particular) incorporates these elements (i.e. MCP, vector search). It is important to know the AI-specific platform offerings of Databricks via Agent Bricks as well as other offerings, beyond general Databricks offerings and MCP/vector search (e.g. Unity AI Gateway, Model Serving, Agent Evaluation, etc.).
+
+> **[UPDATE]**: In Databricks' current documentation, the AI governance product is named Unity Gateway, and the earlier AI Gateway is labelled legacy (with the new Unity Gateway experience described as generally available).
+>
+> **References**:
+> 
+> - [AI governance with Unity Gateway, **docs.databricks.com/aws/en/ai-gateway**](https://docs.databricks.com/aws/en/ai-gateway/)
+> - [Governance for model serving endpoints (legacy), **docs.databricks.com/aws/en/ai-gateway/overview-serving-endpoints**](https://docs.databricks.com/aws/en/ai-gateway/overview-serving-endpoints)

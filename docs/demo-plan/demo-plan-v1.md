@@ -1,4 +1,6 @@
-<h1>Demo Plan</h1>
+<h1>Demo Plan V1</h1>
+
+> 100% human-made.
 
 ---
 

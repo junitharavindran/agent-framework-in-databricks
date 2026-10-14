@@ -178,6 +178,15 @@ For a more practically-grounded comparison:
 >
 > **Reference**: [Introduction to A/B Testing, **www.geeksforgeeks.org/blogs/what-is-a-b-testing**](https://www.geeksforgeeks.org/blogs/what-is-a-b-testing/)
 
+> **[UPDATE]**: As per Databricks' documentation on running agents on Databricks Apps with the MLflow `AgentServer` (the server used by the agent app templates):
+>
+> - The `AgentServer` is described as an async FastAPI server that handles agent requests with built-in tracing and observability; this qualifies the "Manual setup required" entry for MLflow Tracing in the second table above, at least for apps built from these templates
+> - This approach is now documented as the legacy agent server; for new agents, Databricks recommends the Agent Bricks CLI, which serves the agent with `DurableAgentServer` and deploys it to Agent Runtime (which runs on Databricks Apps)
+> - Unlike `DurableAgentServer`, the legacy `AgentServer` does not provide persistent run state, crash recovery, idempotent invocations or ordered sessions
+> - For agents deployed with the legacy approach, only medium and large compute sizes are supported
+>
+> **Reference**: [Run agents on Databricks Apps using the legacy agent server, **docs.databricks.com/aws/en/agents/custom-agents/author-agent**](https://docs.databricks.com/aws/en/agents/custom-agents/author-agent)
+
 ### Unity Gateway as centralised governance
 > **NOTE**: AI Gateway is legacy; migrate to Unity Gateway.
 
@@ -202,6 +211,10 @@ Databricks App <--> Unity Gateway <--> Model Serving endpoint
 
 > **KEY POINT 2**: The Unity Gateway is transparent to your agent code. Your app calls the serving endpoint as usual; the gateway intercepts and governs the request automatically. No code changes are needed to benefit from rate limiting, guardrails, or usage tracking. Rather, these are configured at the platform level (i.e. via the Unity Gateway platform configurations).
 
+> **[UPDATE]**: Databricks' documentation on governing LLM usage from agents on Databricks Apps shows that routing through Unity Gateway involves one code-level step: the agent passes a Unity Gateway endpoint name as the model and sets `use_ai_gateway=True` on the Databricks LLM client (e.g. `AsyncDatabricksOpenAI(use_ai_gateway=True)` or `ChatDatabricks(..., use_ai_gateway=True)`), after which the client routes traffic through the gateway and handles authentication. After that step, the same page states that permissions, per-app cost attribution, model swaps and traffic inspection can be managed without modifying agent code or rotating provider credentials.
+>
+> **Reference**: [Run agents on Databricks Apps using the legacy agent server, **docs.databricks.com/aws/en/agents/custom-agents/author-agent**](https://docs.databricks.com/aws/en/agents/custom-agents/author-agent)
+
 ---
 
 Key capabilities of Unity Gateway:
@@ -218,6 +231,26 @@ Key capabilities of Unity Gateway:
   > **NOTE**: A/B testing has been defined in ["Comparing both patterns" in this document](#comparing-both-patterns)
 - **Inference tables**: Log requests and responses to UC Delta tables
   > This is for auditing and analysis.
+
+> **[UPDATE]**: Further details from Databricks' Unity Gateway documentation:
+>
+> - Guardrails are set with service policies (built-in, custom or external); these control how each request and response proceeds, based on its content and on who is making the call, and can be attached to model services and MCP services
+> - Rate limits apply to model services and MCP services
+> - Traffic splitting and fallbacks distribute requests across multiple model destinations and add failover
+> - Usage tracking is done via system tables, and cost can be attributed to services, target models, principals and tags
+> - Inference tables are documented as "Audit requests and responses": they log requests and responses to UC Delta tables
+> - Agents are governed through UC securables: an agent is registered as a UC model, and the tools it calls are governed as MCP services, UC functions and connections
+>
+> **Reference**: [AI governance with Unity Gateway, **docs.databricks.com/aws/en/ai-gateway**](https://docs.databricks.com/aws/en/ai-gateway/)
+
+> **[UPDATE]**: Databricks' documentation on AI Gateway (legacy) for serving endpoints marks it as superseded by Unity Gateway, and its feature-support table shows that support differs by endpoint type (note that this table describes the legacy gateway, not Unity Gateway):
+>
+> - Traffic splitting: supported on external model endpoints, Foundation Model APIs provisioned throughput endpoints and custom model endpoints; not supported on Foundation Model APIs pay-per-token endpoints or Databricks agents
+> - Payload logging (inference tables): supported on all the listed endpoint types, including Databricks agents
+> - Permission and rate limiting, usage tracking and AI guardrails: not supported on Databricks agents (guardrails are also not supported on custom model endpoints)
+> - The "Available in Unity Gateway" entry: supported for external model endpoints and Foundation Model APIs pay-per-token endpoints; not supported for provisioned throughput endpoints, Databricks agents and custom model endpoints
+>
+> **Reference**: [Governance for model serving endpoints (legacy), **docs.databricks.com/aws/en/ai-gateway/overview-serving-endpoints**](https://docs.databricks.com/aws/en/ai-gateway/overview-serving-endpoints)
 
 ## Observability
 Integrate MLflow Tracing (the tracing component of [MLflow](./mlflow.md)) so every request produces a structured trace capturing inputs, outputs, latency, and execution flow. MLflow Tracing is a fully OpenTelemetry-compatible LLM observability solution for your agents and LLM applications. It captures the inputs, outputs, and metadata associated with each intermediate step of a request, enabling you to easily pinpoint the source of bugs and unexpected behaviors.
@@ -299,6 +332,19 @@ Key capabilities:
 ## Monitoring
 Monitoring is the process of ensuring data from observability and evaluation are maintained and kept up to date across time. It is meant to enable long-term analysis and long-term maintenance + improvement of quality assessment standards and deployment performance. This involves managing scorer lifecycles, backfilling historical traces with new scorers, and archiving traces to Delta tables for long-term analysis.
 
+> **[UPDATE]**: As per Databricks' documentation, production monitoring, trace archival and scorer backfill are each currently labelled Beta (for the archival and backfill pages, workspace admins can control access from the Previews page). Further details:
+>
+> - **Production monitoring**: a scorer is registered and then started with a sampling configuration, i.e. `.register()` followed by `.start(sampling_config=ScorerSamplingConfig(sample_rate=..., filter_string=...))`; at most 20 scorers can be associated with an experiment for continuous monitoring; if traces are stored in UC, a SQL warehouse ID must be set on the experiment via `set_databricks_monitoring_sql_warehouse_id()`; initial results can take 15-20 minutes to appear
+> - **Backfill**: done via `backfill_scorers()` with optional `BackfillScorerConfig` objects (from `databricks.agents.scorers`); scorers must be registered and started first; if both `start_time` and `end_time` are omitted, only the last seven days are covered, so older traces need an explicit `start_time`; if only `end_time` is given, the backfill starts one day before it, and if only `start_time` is given, it runs through the current time
+> - **Archival**: done via `enable_databricks_trace_archival(delta_table_fullname=..., experiment_id=...)`; the target Delta table is created if it does not exist and appended to if it does, and it holds traces together with their associated assessments; `disable_databricks_trace_archival` stops it
+>
+> **References**:
+> 
+> - [Set up production monitoring, **docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/production-monitoring**](https://docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/production-monitoring)
+> - [Scorer lifecycle management API reference, **docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/concepts/production-quality-monitoring**](https://docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/concepts/production-quality-monitoring)
+> - [Backfill historical traces with scorers, **docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/backfill-scorers**](https://docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/backfill-scorers)
+> - [Archive traces to a Delta table, **docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/archive-traces**](https://docs.databricks.com/aws/en/mlflow3/genai/eval-monitor/archive-traces)
+
 # Tool integration via MCP
 ## About MCP
 **See**: [MCP](./mcp.md)
@@ -317,6 +363,10 @@ Databricks provides 3 categories of MCP server:
 > **Source**: "Tool Integration and Observability", Deploying and Monitoring Agent Applications on Databricks, Databricks Partner Academy
 
 Managed MCP server in particular (the out-of-box Databricks-native option) is backed by UC functions. You write a Python function, register it in UC, and the managed MCP server automatically exposes it as a tool that any connected agent can discover and invoke. And since the MCP protocol handles discovery, invocation, and response formatting, the agent does not need custom code to call the UC function and can rely on calls to the MCP server alone.
+
+> **[UPDATE]**: Databricks' Unity Gateway documentation describes governing MCP servers registered as UC securables, with tool filtering and service policies, and applying rate limits to MCP services. Access to models and MCP services in `system.ai` can also be governed with GRANT policies, using system-provided or custom governed tags.
+>
+> **Reference**: [AI governance with Unity Gateway, **docs.databricks.com/aws/en/ai-gateway**](https://docs.databricks.com/aws/en/ai-gateway/)
 
 # Observability via MLflow Tracing
 > Extends from ["Observability" in this document](#observability).
@@ -384,3 +434,15 @@ Once stored in Delta tables:
 - -> Enabling custom reporting and dashboards
 
 > **NOTE: Governance**: Access is controlled through UC table permissions. Users need `USE_CATALOG`, `USE_SCHEMA`, and explicit `MODIFY` + `SELECT` grants on each table. ***Note that `ALL_PRIVILEGES` is not sufficient; `MODIFY` and `SELECT` must be granted explicitly.***
+
+> **[UPDATE]**: As per Databricks' documentation on storing OpenTelemetry traces in Unity Catalog:
+>
+> - UC storage is the recommended store for new and production workloads. When no UC trace location is configured, MLflow falls back to the experiment's managed backend, which caps storage at 100,000 traces per experiment and might not be compatible with the latest MLflow features. In either case, a trace always belongs to an MLflow experiment, which remains the UI entry point for viewing traces
+> - Requirements include: a UC-enabled workspace, a Databricks SQL warehouse with `CAN USE`, a supported region, MLflow Python library version 3.14 or later, and an existing catalog and schema (binding an experiment to a trace location does not create them)
+> - An experiment can only be bound to a UC trace location at experiment creation time
+> - Traces stored in UC are not supported with Knowledge Assistant or Supervisor Agent
+> - Individual traces cannot be deleted through MLflow; rows must be deleted directly from the underlying UC tables using SQL
+> - Traces cannot yet be written to a default-storage catalog or to storage protected by Private Link
+> - Enabling tracing on a serving endpoint may reduce serving throughput
+>
+> **Reference**: [Store OpenTelemetry traces in Unity Catalog, **docs.databricks.com/aws/en/mlflow3/genai/tracing/trace-unity-catalog**](https://docs.databricks.com/aws/en/mlflow3/genai/tracing/trace-unity-catalog)
