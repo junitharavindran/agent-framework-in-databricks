@@ -14,6 +14,9 @@
   - [Agentic app deployment in Databricks - 2](#agentic-app-deployment-in-databricks---2)
 - [Agentic app dev/deployment principles](#agentic-app-devdeployment-principles)
   - [Evaluation-driven development](#evaluation-driven-development)
+  - [Context hygiene](#context-hygiene)
+- [Interpretability](#interpretability)
+- [Flexibility and scalability](#flexibility-and-scalability)
 
 ---
 
@@ -189,6 +192,7 @@ Clarify:
   - Managed
 - Unity Catalog for data governance
   > Especially: what IS Unity Catalog and how does it govern?
+- How MLflow actually manages agent lifecycle in specifics
 
 Suggested demos (using app-based pattern only):
 
@@ -205,11 +209,50 @@ Suggested demos (using app-based pattern only):
 ## Evaluation-driven development
 Clarify:
 
-- 
+- The iterative nature of agent deployment + evaluation
+- Agent evaluation as key to agent development/deployment
+- [Additional] Store MLflow traces in Delta tables
+  > Trace archival streams traces to Delta tables.
+- [Additional] Backfilling historical traces with new scorers
 
 Suggested demo:
 
 - Shri Veena's [`Module 5B/skyjet-app`, `Platformatory`, **github.com**](https://github.com/Platformatory/generative-ai/tree/main/Module%205B/skyjet-app)
   > Use this as the agentic app.
+- Use Model Serving and MLflow
+- Use tooling (including MCP server-based tools)
+- Set up observability via MLflow Tracing + Unity Gateway
+  > In Unity Gateway, focus on inference tables.
 - Create evaluation setup using judges and scorers
-- Set up observability via MLflow Tracing
+  > Design the setup to:
+  > 
+  > - Cover different types of judges
+  > - Address pre-deployment validation
+  > - Address production monitoring
+  > - Address iterative development of judges
+- Create a new scorer later and show historical backfill
+
+> **Suggestion**: You can add more tools to the above app.
+
+## Context hygiene
+Clarify:
+
+- The potential for context rot and bloat
+- How sub-agents rectify this
+- How sub-agents fit within the workflow
+
+Suggested demo:
+
+- Same demo as in ["Evaluation-driven development"](#evaluation-driven-development)
+- Note that this demo has:
+  - Policy agent
+  - Flight agent
+
+# Interpretability
+Demonstrated above; clarify how.
+
+# Flexibility and scalability
+- Agent -> sub-agent architecture
+- Managed MCP server + tooling scaling
+- Trace archival and historical scorer backfill
+- ?
