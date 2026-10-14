@@ -45,13 +45,13 @@ Each intent in "About" is closed by at least one demo:
 
 | Intent | Where it is demonstrated |
 | --- | --- |
-| Core concepts | The 6 demos under "Core concepts" |
+| Core concepts | The 6 sections under "Core concepts" (Databricks - 2 expands into one demo per MCP server type, per pattern) |
 | Evaluation-driven development | "Evaluation-driven development" |
 | Context hygiene | "Context hygiene" |
 | Interpretability | "Interpretability" (artifact map over earlier demos) |
 | Flexibility and scalability | "Flexibility and scalability" (each item labelled demo or discussion) |
 | Tooling | MLflow, MCP, Databricks demos |
-| Governance | Unity Gateway (Databricks - 1 and 2), UC (Databricks - 2) |
+| Governance | Unity Gateway (Databricks - 1 and 2), UC (Databricks - 2, managed MCP demo) |
 
 ## Layering map
 Which layer each demo exercises.
@@ -66,8 +66,15 @@ Which layer each demo exercises.
 | MCP architecture | | | | X | |
 | Databricks - 1 (app-based) | | | optional | | |
 | Databricks - 1 (model-serving) | X | X | optional | | |
-| Databricks - 2 | X | X | X | X | X |
+| Databricks - 2 (custom MCP) | X | X | X | X | |
+| Databricks - 2 (external MCP) | X | X | X | X | |
+| Databricks - 2 (managed MCP) | X | X | X | X | X |
 | Evaluation-driven development | X | X | X | X | X |
+| Context hygiene | X | X | X | X | X |
+
+> **Note**: Custom and external MCP demos leave UC blank because the demo does not route them through UC. UC governance is shown in the managed MCP demo. Confirm this holds for your actual setup (e.g. if the custom app's data is read from UC tables, mark it).
+>
+> **Note**: Context hygiene reuses the Evaluation-driven development app, so its row mirrors that one.
 
 ## Demo hygiene
 - Use synthetic data only
@@ -78,6 +85,15 @@ Which layer each demo exercises.
   - Production monitoring
   - Scorer backfill
   > Each is marked where used, with a fallback.
+- Several limits and version requirements in this plan are release-sensitive
+  > **Caveat**: Re-verify these against current Databricks/MLflow docs before the demo:
+  > 
+  > - MLflow 3.14 or later for traces in UC
+  > - 200 traces/second per-workspace cap on UC traces
+  > - 20-scorer cap on production monitoring
+  > - 7-day default backfill window
+  > - Agent Bricks CLI/runtime recommendation over MLflow `AgentServer`
+  > - Which gateway features each endpoint type supports
 
 # Core concepts
 Keep each demo:
@@ -225,6 +241,8 @@ Suggested demo:
   - Call `server/discover` on 1 server
   - Show a tool call with no prior handshake
 
+> **Caveat**: Test case 3 depends on the MCP spec version your SDK implements. Confirm that the SDK version you demo with supports the stateless data layer and `server/discover`; otherwise this test case will fail live. Dry-run it beforehand.
+
 > **Suggested deployment mode**:
 > 
 > - Locally-hosted
@@ -301,6 +319,18 @@ Clarify:
   > Especially: what IS UC and how does it govern?
 - How MLflow actually manages agent lifecycle in specifics
 
+> **Structure**:
+> 
+> - Each pattern below is delivered as separate demos
+> - 1 demo per MCP server type (custom, external, managed)
+> - The test cases are placed as follows:
+>   - **Governance** (test case 1): <br> Managed-server demo only
+>   - **Lifecycle view** (test case 3): <br> Shown in the managed-server demo
+>     > Optionally repeated briefly in the others.
+>   - **Comparison table** (test case 2): <br> A wrap-up after all 3 demos
+>
+> **Depth**: The earlier guidance "simple for custom and external, deeper for managed" now applies per demo. Give custom and external a short time budget (show how they work), and give managed the largest share.
+
 Suggested demos #1 (app-based pattern):
 
 - Same demo as ["MCP architecture and tooling" above](#mcp-architecture-and-tooling)
@@ -312,18 +342,18 @@ Suggested demos #1 (app-based pattern):
   > Simple demos for custom and external, deeper for managed.
   > 
   > **NOTE**: The idea is to show how the other 2 work, but focus on the managed.
-- Test case 1 (governance):
+- Test case 1 (governance) *(managed demo only)*:
   - Expose 1 UC function as a managed MCP tool
   - Call it:
     - As a user with access
     - As a user without access, and show the denial
-- Test case 2 (comparison):
+- Test case 2 (comparison) *(wrap-up after all 3 demos)*:
   - Fill 1 table comparing custom/external/managed servers on:
     - Who hosts it
     - Who governs access
     - Effort to set up
     - A fitting use-case.
-- Test case 3 (lifecycle):
+- Test case 3 (lifecycle) *(managed demo; optionally brief in the others)*:
   - Show the MLflow record of the deployed agent in one view
     > Show version, traces, evaluation results.
 
@@ -380,6 +410,8 @@ Suggested demo:
 > - Keep traces in the experiment
 > - Run `mlflow.genai.evaluate` over exported traces
 
+> **Caveat**: These version numbers and limits can change between releases. See "Demo hygiene" and re-verify before the demo.
+
 > **Suggestion**: You can add more tools to the above app.
 
 ## Context hygiene
@@ -400,6 +432,8 @@ Suggested demo:
   - The policy + flight sub-agents
   
   Compare input token counts (from traces) and 1 scorer result (e.g. correctness) for each.
+
+> **Prerequisite**: The single-agent baseline does not exist in the skyjet app. Build it beforehand: one agent that receives both the policy and flight context in a single prompt/toolset. Keep model, temperature and questions identical across both variants so the comparison is fair, and trace both so input token counts can be read.
 
 # Interpretability
 Demonstrated above; clarify how. Each artifact answers one question:
@@ -439,6 +473,8 @@ Each item is marked demo or discussion:
   - Layering map
   - Demo hygiene
 - Marked Beta features and added a fallback
+- Added a release-sensitivity caveat to Demo hygiene
+  > Versions and limits to re-verify.
 
 **Per section**:
 
@@ -465,11 +501,14 @@ Each item is marked demo or discussion:
   - A governance test case
   - A comparison table
   - A lifecycle view
+  - One separate demo per MCP server type for both patterns
 - Evaluation-driven development:
   - Demo mapped to 3 phases
   - Backfill window made explicit
   - Prerequisites and fallback added
-- Context hygiene: added a before/after test case
+- Context hygiene:
+  - Added a before/after test case
+  - Added the single-agent baseline as a prerequisite
 - Interpretability: replaced the one-liner with an artifact map
 - Flexibility and scalability: replaced "?" with concrete items
   > Each marked demo or discussion.
