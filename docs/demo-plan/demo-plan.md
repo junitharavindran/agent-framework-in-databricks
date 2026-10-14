@@ -158,18 +158,21 @@ Clarify:
 
 > **Suggestion**: Do not include the following:
 >
-> - MLflow
+> - MLflow (for app-based pattern)
 > - MCP
 >
 > This ensures the demo is tightly-scoped.
 >
-> **NOTE**: MLflow is unavoidable for model-serving pattern.
+> **NOTE**:
+> 
+> - MLflow is unavoidable for model-serving pattern
+> - App-based pattern can use Model Serving, but need not
 
 Suggested demo:
 
 - For app-based pattern:
-  - Same demo as ["MCP architecture and tooling" above](#mcp-architecture-and-tooling)
-    > But deployed in Databricks.
+  - Same use-case as ["MCP architecture and tooling" above](#mcp-architecture-and-tooling)
+    > But deployed in Databricks, and without MCP tooling.
   - Avoid Model Serving and MLflow
   - Use Unity Gateway
     > Show how it is optional and why it is useful.
@@ -194,16 +197,23 @@ Clarify:
   > Especially: what IS Unity Catalog and how does it govern?
 - How MLflow actually manages agent lifecycle in specifics
 
-Suggested demos (using app-based pattern only):
+Suggested demo 1 (app-based pattern):
 
 - Same demo as ["MCP architecture and tooling" above](#mcp-architecture-and-tooling)
   > But deployed in Databricks.
 - Use Model Serving and MLflow
+  > App-based pattern can use Model Serving for AI model backend.
 - Use Unity Gateway
 - Use MCP; demonstrate for all kinds of MCP servers
   > Simple demos for custom and external, deeper for managed.
   > 
   > **NOTE**: The idea is to show how the other 2 work, but focus on the managed.
+
+Suggested demo 2 (model-serving pattern):
+
+- Replicate the above as much as possible
+- Add MCP tooling
+- Mention additional components needed for production use
 
 # Agentic app dev/deployment principles
 ## Evaluation-driven development
