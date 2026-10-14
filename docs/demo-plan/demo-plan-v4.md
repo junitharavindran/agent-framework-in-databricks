@@ -1,11 +1,14 @@
-# Demo Plan V4
+<h1>Demo Plan V4</h1>
 
-> **Status**: Draft for review. Covers Steps 1-6 of [`demo-plan-v4-creation-plan.md`](./demo-plan-v4-creation-plan.md): outcomes, triage, promise ledger, time budgets, blocks, labs, assignments and cross-session devices. Pre-staging checklists, verification, the handout map and the change log (Steps 7-9) follow after your review.
+> Mostly AI-generated with human feedback + edits.
+
+> **Status**: Draft for review. Covers Steps 1-9 of [`demo-plan-v4-creation-plan.md`](./demo-plan-v4-creation-plan.md): outcomes, triage, promise ledger, time budgets, blocks, labs, assignments, devices, pre-staging checklists, verification, the handout map and the change log. Not yet done: the starter files for the labs, a live Gemini call, and the timed dry runs.
 
 > **Context**:
 >
 > - Source: Demo Plan V3 ([`demo-plan-v3.md`](./demo-plan-v3.md))
-> - Audience: beginners with basic Databricks + Python knowledge, assumed to know nothing about agents
+> - Audience: beginners with basic Databricks + Python knowledge
+>   > Assumed to know nothing about agents.
 > - Format:
 >   - 4 sessions of about 3 hours
 >   - Over 2 weekends (Sat + Sun each)
@@ -22,6 +25,10 @@
 - [Resolved decisions](#resolved-decisions)
 - [5. Blocks](#5-blocks)
 - [6. Labs, assignments and cross-session devices](#6-labs-assignments-and-cross-session-devices)
+- [7. Pre-staging checklists](#7-pre-staging-checklists)
+- [8. Verification and coverage](#8-verification-and-coverage)
+- [9. Handout map](#9-handout-map)
+- [Change log (V3 to V4)](#change-log-v3-to-v4)
 - [Open items for review](#open-items-for-review)
 
 ---
@@ -67,7 +74,12 @@ Each outcome reads "Participants can...".
 
 # 2. Triage of V3
 
-Tags: **Overview** (seen only in the recording), **Deep dive**, **Rung n** (Sessions 3-4 ladder), **Name only** (one slide or table row), **Handout**.
+Tags:
+
+- **Overview** (seen only in the recording)
+- **Deep dive**, **Rung n** (Sessions 3-4 ladder)
+- **Name only** (one slide or table row)
+- **Handout**
 
 | V3 concept | Tag | Session | Reason |
 | --- | --- | --- | --- |
@@ -129,7 +141,7 @@ Anything said in the overview but not taught there is a debt.
 | "The app is deployed on Databricks" | Session 3 | Rung 1, Rung 4 |
 | "Tools plug in through MCP servers" | Session 1 (concept), Session 4 (server types) | MCP block, Rung 5 |
 
-A parking lot of unanswered questions is kept on screen in Sessions 1-2 and revisited at the start of Session 3.
+> **NOTE**: A parking lot of unanswered questions is kept on screen in Sessions 1-2 and revisited at the start of Session 3.
 
 > **Why a ledger**: The spiral only works if every raised question gets answered. The ledger makes unpaid promises visible, so nothing is left dangling.
 
@@ -242,6 +254,10 @@ A parking lot of unanswered questions is kept on screen in Sessions 1-2 and revi
 | Context hygiene | Discussion only (Session 4 wrap) |
 | Labs in Sessions 3-4 | None live. Presenter demos, plus assignments done outside the session |
 | Drop-first list | Accepted as written |
+| Participant setup | Own machines, own Gemini key. Setup guide ([`participant-setup-guide.md`](./participant-setup-guide.md)) and smoke test ([`smoke_test.py`](./smoke_test.py)) drafted. Sent at least 2 days before Session 1 |
+| Overview recording | Recorded the day before, or run live. Recommended: record it the day before even if you go live, so a fallback exists |
+| Assignments | Submitted by email or a shared folder. A2 and A3 handouts drafted |
+| Class size | 8-10 students |
 
 ---
 
@@ -296,11 +312,12 @@ Template:
     - Make a one-sentence promise
       > E.g.: "UC controls access to data and functions, more in Session 3."
 - **Demo** (30):
-  - The recording, paused at the 6 points in section 3
+  - The recording or a live run, paused at the 6 points in section 3
+    > The recording is made the day before. Make it even if you plan to go live: it doubles as the rehearsal and the fallback.
   - Databricks parts get one sentence each
 - **Check**: Ask 2 participants to restate a parking-lot question in their own words
 - **Fallback**:
-  - The recording is the fallback by design
+  - The recording from the day before
   - Keep a transcript and screenshots in case playback fails
 - **Set-up**: Parking lot filled with the 6 questions
 
@@ -390,7 +407,7 @@ Template:
 - **Carry-over**: The opener's tool now arrives through MCP
 - **Set-up**: Session 2 starts from a traced agent that calls an MCP tool
 
-> **Build-time check**: Pin exact MCP SDK versions, use the same spec era on client and server, and dry-run.
+> **Build-time check**: Pin `mcp==2.3.0` (verified 14 Oct 2026) and dry-run. In SDK v2 the server class is `MCPServer` (`from mcp.server.mcpserver import MCPServer`), not `FastMCP`, and `from mcp import Client` can connect to a server in-process. v2 serves both spec eras.
 >
 > **Moved to handout**:
 > 
@@ -478,7 +495,7 @@ Template:
 - **Carry-over**: The evaluation results from 2.2, now compared per version
 - **Set-up**: v1 registered for the lab in 2.4
 
-> **Build-time check**: Confirm the exact prompt-registry and alias API names for your MLflow version.
+> **Build-time check**: The prompt-registry and alias calls were verified on MLflow 3.17.1 (14 Oct 2026): `mlflow.genai.register_prompt`, `set_prompt_alias`, and `load_prompt("prompts:/<name>@production")`. Flipping an alias from version 1 to 2 changed what loaded, and loading by version still worked. Re-run on the version you pin.
 
 ### 2.4 Put it together
 > 30 min: 15 demo, 15 lab.
@@ -585,7 +602,12 @@ Template:
   - Recording
 - **Set-up**: Raise or remove the low rate limit before the next block
 
-> **Build-time check**: Name the exact usage and payload-log tables in your workspace. The docs name `system.ai_gateway.usage` for usage; the payload-log table name is not verified.
+> **Build-time check**:
+>
+> - Usage: `system.ai_gateway.usage` is confirmed in the docs (token counts, latency, requester identity, request tags)
+> - Payload log: there is no fixed table name. You choose the catalog, schema and prefix, and the full name is shown in the endpoint config. Read it from there and put it on the slide
+> - Run B must go through the endpoint query API. `ai_query` only gets usage tracking, so it would not show the payload log
+> - Confirm the gateway is enabled for the account (Beta, Previews page, supported region, UC-enabled workspace). Docs name it "Unity AI Gateway" in places; the plan uses "Unity Gateway"
 
 *Break (10 min)*
 
@@ -788,7 +810,8 @@ Template:
 
 > **Build-time check**:
 > 
-> - Re-check the OBO status (GA or preview)
+> - OBO (user authorization) was announced GA on 7 Oct 2026, but some doc pages still say Public Preview. Say "GA" only after you see it in your workspace
+> - A workspace admin sets the maximum scopes, and existing apps must be restarted after OBO is enabled
 > - Grants go to the users or a group, not only to the service principal
 
 ### 4.7 Rung 7: the evaluation-driven loop
@@ -854,7 +877,9 @@ Template:
 | L2: write and break a guideline | 2.2, 15 min | The small dataset and a working guideline judge setup | Write a guideline for the paragraph-analysis app; run it; make it vague or contradictory; re-run; compare scores and rationales | You can point to a rationale that changed because the guideline did | Add a second, row-wise guideline |
 | L3: create a version and compare | 2.4, 15 min | v1 registered and evaluated | Change one prompt line; register v2; re-run the evaluation; compare v1 and v2; point `production` at the better one | The alias points where the scores say it should, with no code change | Flip it back and confirm |
 
-> **Gemini and a full class**: Many participants hitting the free tier at once will be rate-limited. Labs default to cached LLM outputs, with live calls optional.
+> **Gemini keys**: Each participant creates a key in their own Google project. Google applies free-tier limits per project, not per key, so keys that share a project share a limit. Labs use live calls, with cached outputs as the fallback for anyone who hits a limit.
+>
+> **Trace export**: Traces are exported asynchronously. In every script that reads traces back, call `mlflow.flush_trace_async_logging()` before `mlflow.search_traces()`.
 
 ## Assignments (outside the session, not live)
 
@@ -866,6 +891,10 @@ Template:
 
 - A2 and A3 work with screenshots and paper, so they do not need workspace access
   > Participants who do have access can implement part of A3 as an option.
+- All assignments are submitted by email or the shared folder, and feedback comes back the same way
+- Handouts:
+  - A2: [`assignment-a2.md`](./assignment-a2.md), with the presenter's [`assignment-a2-key.md`](./assignment-a2-key.md)
+  - A3: [`assignment-a3.md`](./assignment-a3.md)
 
 ## Cross-session devices
 - **Parking lot**: A visible list of open questions
@@ -901,19 +930,178 @@ Template:
 
 ---
 
+# 7. Pre-staging checklists
+> The main risk is setup, not content. Sessions 3-4 depend on many Databricks prerequisites, so each has an owner moment below.
+
+## Recorded backups
+| ID | Covers | Recorded | Used if |
+| --- | --- | --- | --- |
+| B1 | Overview (1.2) | Day before Session 1 | Always played; or the fallback if you run it live |
+| B2 | Tracing and MCP demos (1.4, 1.5) | Rehearsal week | A live step fails or Gemini rate-limits |
+| B3 | Evaluation, versions, put-it-together (2.2-2.4) | Rehearsal week | Same |
+| B4 | Rungs 1-4 (3.2-3.5), with screenshots of each result | Gap week, after the full workspace run | The workspace or a Beta feature misbehaves |
+| B5 | Rungs 5-7 (4.2-4.7), with screenshots of the denial and the loop | Gap week | Same |
+
+> Record with synthetic data only, and blur names, emails and workspace IDs.
+
+## Before the course
+- [ ] Send the setup guide and `smoke_test.py` at least 1 week before Session 1
+- [ ] Collect every participant's smoke-test output at least 2 days before Session 1
+  > Fix any FAIL by email. Anyone still failing joins the labs as a pair with a neighbour.
+- [ ] Build the starter files for L1-L3 (not built yet)
+- [ ] Cache the output of every LLM-backed step
+- [ ] Confirm the live Gemini call and the default model name
+  > The sandbox could not reach Gemini, so `gemini-2.5-flash` is unconfirmed. Run `python smoke_test.py` on a real machine with a real key.
+- [ ] Confirm the skyjet acceptance checklist (needed before B1 is recorded)
+- [ ] Ask the account admin to enable Unity Gateway (Beta) on the Previews page
+- [ ] Confirm the workspace is UC-enabled and in a supported region
+
+## Day before Session 1
+- [ ] Record B1
+- [ ] Timed run of 1.3-1.5, with the labs
+- [ ] Open the setup guide on a clean machine and follow it once
+
+## Morning of each session
+- [ ] Join 30 minutes early; check the screen share, audio and recording
+- [ ] Parking lot visible on screen
+- [ ] Cached outputs and the matching recording open in other tabs
+- [ ] Sessions 1-2: `mlflow ui` runs; Gemini key works
+- [ ] Sessions 3-4: the workspace opens, the apps are running and the gateway endpoint responds
+
+## Between Sessions 1 and 2 (same evening)
+- [ ] Register v1 of the prompts for the lab in 2.4
+- [ ] Add unanswered parking-lot questions to the 2.1 slide
+
+## Gap week (before Session 3)
+Stage everything in the order the rungs use it.
+
+- [ ] Rung 1: the paragraph-analysis app deployed once end to end, so you know the steps
+- [ ] Rung 2: gateway endpoint created; Run A and Run B tested; low rate limit tested, then raised
+- [ ] Rung 3: the experiment created with its UC trace location (fixed at creation); grants given explicitly
+  > `ALL_PRIVILEGES` is not enough for trace tables.
+- [ ] Rung 4: skyjet deployed behind the gateway, with the seeded failing case
+- [ ] Rung 5: custom MCP app deployed; UC HTTP connection and MCP Service for the external server; managed MCP function created
+- [ ] Rung 6: 2 test users (or volunteers), one with access and one without; grants given to the users or a group
+- [ ] Rung 7: scorers prepared, 2 agent versions registered, a pre-run evaluation, and monitoring results
+- [ ] A2 screenshot set captured (S1-S5) in the Session 3 rehearsal
+- [ ] Record B4 and B5
+
+## Between Sessions 3 and 4 (same evening)
+- [ ] Insert the A2 screenshots and send A2
+- [ ] Raise or remove the low rate limit
+- [ ] Start the production scorer early if it is not already registered
+  > First monitoring results take 15-20 minutes; 4.1 registers it so 4.7 has results to show.
+
+## Rehearsal schedule
+| Run | When | What |
+| --- | --- | --- |
+| R1 | The week before Session 1 | Full local run of Sessions 1-2, timed per block |
+| R2 | Gap week | Full workspace run of Sessions 3-4, timed per block |
+| R3 | The evening before Sessions 3 and 4 | Tightest blocks only: 3.3, 4.6, 4.7 |
+
+# 8. Verification and coverage
+## Re-verification of V3 items still in scope (14 Oct 2026)
+| Item | Result | Where it landed |
+| --- | --- | --- |
+| Unity Gateway: Beta, admin enables, region, UC | Confirmed. Naming differs: "Unity AI Gateway" on AWS and GCP docs, "Unity Gateway" or "Enhanced Unity Gateway" on some Azure pages | 3.3 |
+| Apps agents route LLM traffic through the gateway | Confirmed | 3.3 |
+| Gateway features (usage, rate limits, traffic splitting) | Confirmed in the new gateway docs; the payload-log doc sits under the serving-endpoints gateway | 3.3 |
+| Usage table | `system.ai_gateway.usage` confirmed | 3.3, A2 key |
+| Payload-log table name | Not fixed; chosen by catalog, schema and prefix, read from the endpoint config | 3.3 |
+| `ai_query` | Usage tracking only, so Run B uses the endpoint query API | 3.3 |
+| OBO status | Announced GA on 7 Oct 2026; some doc pages lag | 4.6 |
+| Prompt and alias APIs | Verified locally on MLflow 3.17.1 | 2.3 |
+| Deterministic and trace-based scorers with `mlflow.genai.evaluate` | Verified locally | 2.2 |
+| Trace export timing | Needs `mlflow.flush_trace_async_logging()` before `search_traces()` | Section 6 |
+| Agent Bricks CLI | Confirmed (`agentbricks init/dev/deploy`, `ab`, needs `uv`). PyPI describes it as experimental, so say so in 3.2 | 3.2 |
+| MCP Python SDK | v2.0.0 stable 28 Jul 2026; 2.3.0 latest; `MCPServer` replaces `FastMCP` | 1.5 |
+| MLflow telemetry opt-out | `MLFLOW_DISABLE_TELEMETRY=true` verified in the package | Setup guide |
+
+## Still unverified
+- The gateway Fallbacks row of the support table (inferred in V3; flagged in the A2 key)
+- The human-feedback API names, used for judge calibration in 2.2
+- The skyjet repository contents (github.com/Platformatory/generative-ai, Module 5B)
+- A live Gemini call and the default model name
+- Timed dry runs per block
+
+## Coverage check
+Every outcome has at least one block.
+
+| Outcome | Block |
+| --- | --- |
+| R1, R2 | 1.2 |
+| E1 | 1.3 |
+| E2 | 1.4 |
+| E3 | 1.5 |
+| E4, E5 | 2.2 |
+| E6 | 2.3 |
+| E7 | 2.4 |
+| E8 | 3.2 |
+| E9 | 3.3 |
+| E10 | 3.4 |
+| E11 | 3.5 |
+| E12 | 4.2, 4.3, 4.4, 4.5 |
+| E13 | 4.6 |
+| E14 | 4.7 |
+
+## Re-summed totals
+| Session | Theory | Demo | Lab | Content min |
+| --- | --- | --- | --- | --- |
+| 1 | 80 | 65 | 15 | 160 |
+| 2 | 80 | 50 | 30 | 160 |
+| 3 | 80 | 80 | 0 | 160 |
+| 4 | 66 | 94 | 0 | 160 |
+| **Total** | **306** | **289** | **45** | **640** |
+
+- Theory 306 of 640 minutes is 47.8%
+- Demo and lab is 334 minutes, or 52.2%
+
+# 9. Handout map
+What was cut from V3 and where the participant can find it.
+
+| V3 content | Where it goes | Note |
+| --- | --- | --- |
+| Multi-turn judges | Handout | Experimental; needs session IDs |
+| Context hygiene experiment (20+ questions) | Handout | Large setup; discussion only in 4.8 |
+| Dev-to-prod promotion with DAB targets | Handout | Out of scope for beginners |
+| Sentiment and keyword tools using a server-side LLM | Handout | Blur who calls the LLM |
+| Deploy routes (DAB, Git, direct upload) | One slide in 3.2, then the handout | |
+| Gateway guardrails, traffic splitting, fallbacks | One slide in 3.3, then the handout | Support varies by endpoint type |
+| MCP sampling, roots, logging, legacy SSE | Not shown | Already excluded in V3 |
+| Glossary | Handout | Table in section 6 |
+| Setup guide and smoke test | Handout, sent before Session 1 | |
+| A1-A3 | Handouts | A2 and A3 drafted, A2 has a presenter key |
+
+# Change log (V3 to V4)
+- **Audience**: Beginners with basic Databricks and Python; no agent knowledge assumed
+- **Structure**: 4 sessions of about 3 hours over 2 weekends, replacing the single 10-hour plan
+- **Spiral**: A recorded overview, then a local deep dive (Sessions 1-2), then a ladder of 7 live Databricks rungs (Sessions 3-4)
+- **Added**: Agent and tool-calling opener; labs L1-L3; assignments A1-A3; promise ledger; parking lot; bridge slide; glossary; setup guide and smoke test
+- **Cut or moved**: Items in section 9
+- **Changed**:
+  - MCP is taught with 2 small servers instead of the full V3 set
+  - Gateway is split into a Run A vs Run B contrast
+  - Model Serving agents are a short legacy contrast
+  - Context hygiene is discussion only
+- **Corrected after verification**:
+  - Payload-log table name is user-chosen
+  - `FastMCP` is `MCPServer` in MCP SDK v2
+  - OBO is announced GA
+  - Gemini free-tier limits are per project
+- **Time**: 640 content minutes, 47.8% theory
+
 # Open items for review
-1. **Participant setup**
-   > Do participants run the local labs on their own machines (Python, MLflow, the pinned MCP SDK), and does each have a Gemini key? This sets the size of a pre-session setup guide, and how much of the lab work should use cached outputs.
-2. **Recording**
-   > The overview needs about 30 minutes of skyjet footage with 6 pause points. Who records it, and when? It should wait until the skyjet acceptance checklist is confirmed.
-3. **Assignments**
-   > How are A1-A3 submitted and given feedback (chat, email, a shared folder)? Should the A2 screenshot set and the A3 scenario brief be drafted?
-4. **Class size**
-   > It affects the labs (rate limits) and whether the two-user governance test can be done with real participants as the 2 users.
-
-**Next (Steps 7-9)**:
-
-- Per-session pre-staging checklists with recorded backups
-- Targeted re-verification of items still in scope
-- The handout map to V3
-- The change log
+1. **Two-user governance test**
+   > Use 2 pre-made test users (the default), or 2 volunteers from the class? With 8-10 students, volunteers are feasible, but they need workspace accounts and the grants in place.
+2. **Participant workspace access**
+   > Do participants have any workspace access? It decides whether volunteers are possible and whether A3 can be implemented as an option.
+3. **Skyjet acceptance checklist**
+   > The recording is made the day before Session 1, so the checklist has to be confirmed by then.
+4. **Assignment deadlines**
+   > Due dates and feedback turnaround for A1-A3. Suggested: A1 before Session 3, A2 before Session 4 starts, A3 within a week of Session 4.
+5. **Starter files**
+   > L1-L3 starter files are not built yet.
+6. **Live Gemini call**
+   > Not tested from the sandbox. The default model name `gemini-2.5-flash` needs confirming on a real key.
+7. **Agent Bricks CLI**
+   > PyPI describes it as experimental. Decide whether to say so in 3.2 or keep a fallback deploy route.

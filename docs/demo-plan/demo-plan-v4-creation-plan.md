@@ -1,5 +1,7 @@
 <h1>Plan for Creating the Beginner Demo Plan</h1>
 
+> AI-generated based on human prompt about approach.
+
 > Creating [`demo-plan-v4.md`](./demo-plan-v4.md)
 
 > **Context**:
