@@ -13,7 +13,7 @@
   - [MCP's scope](#mcps-scope)
   - [MCP's protocol layers](#mcps-protocol-layers)
   - [MCP's statelessness](#mcps-statelessness)
-  - [MPC's primitives](#mpcs-primitives)
+  - [MCP's primitives](#mcps-primitives)
 - [MCP lifecycle](#mcp-lifecycle)
 
 ---
@@ -106,7 +106,7 @@ MCP is actually 2 related protocols merged into a single standard:
 > 
 > **Reference**: ["Statelessness and discovery", Architecture, **modelcontextprotocol.io/docs/2026-07-28/learn/architecture**](https://modelcontextprotocol.io/docs/2026-07-28/learn/architecture#statelessness-and-discovery)
 
-## MPC's primitives
+## MCP's primitives
 > **NOTE**: Primitive => Pre-defined types (i.e. data interfaces) that are available directly (as opposed to composite types built from objects of other types).
 
 MCP primitives are the most important concept within MCP. They define what clients and servers can offer each other. ***These primitives specify the types of contextual information that can be shared with AI applications and the range of actions that can be performed***. MCP defines 3 core primitives that servers can expose:

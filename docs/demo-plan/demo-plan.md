@@ -114,7 +114,7 @@ Clarify:
   - Host hosting 1+ MCP clients
   - Dedicated client-server connection
 - MCP primitives shown in practice
-- MPC protocol layers in action:
+- MCP protocol layers in action:
   - Data layer
   - Transport layer
 
@@ -145,7 +145,7 @@ Suggested demo:
 Clarify:
 
 - App-based pattern of deployment
-  - Using DAB (Databricks Automation Bundles)
+  - Using DAB (Declarative Automation Bundles)
   - Using externally-hosted source code (e.g. Git repo)
   - Using direct code upload
 - Model-serving pattern of deployment (without app)
