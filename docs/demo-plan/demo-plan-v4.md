@@ -84,7 +84,7 @@ Tags:
 | V3 concept | Tag | Session | Reason |
 | --- | --- | --- | --- |
 | Agent basics and tool-calling loop | Deep dive | 1 | Not in V3. Needed because no prior knowledge is assumed |
-| Skyjet system running end to end | Overview | 1 | Recorded; raises the six questions |
+| Skyjet system running end to end | Overview | 1 | Recorded; raises the six questions (see below this table) |
 | MLflow tracing: spans, span types, autolog vs custom, error span | Deep dive | 1 | Answers "what did the agent do?" |
 | MCP architecture, tools/resources/prompts, STDIO vs HTTP | Deep dive | 1 | Gives the agent tools to trace and evaluate |
 | MCP stateless data layer, `server/discover` | Name only | 1 | SDK-version risk in dry runs; low beginner value |
@@ -114,6 +114,17 @@ Tags:
 | Dev-to-prod promotion with DAB targets | Handout | | Out of scope for beginners |
 
 > **Why triage as a table**: It turns the 10-hour V3 into four sessions, and each tag is a reviewable decision. Disagree with a row and only that row changes.
+
+**The six questions the Skyjet app recording raises**:
+
+| Pause in the recorded run | Question raised | Answered in |
+| --- | --- | --- |
+| The agent calls a tool | What exactly did it do, and in what order? | Session 1: tracing |
+| It gives a wrong answer | How do we know it is good, and how do we catch this? | Session 2: evaluation |
+| A new prompt makes things worse | Which version is running, and can we go back? | Session 2: versioning |
+| It calls a tool through a server | How do tools get plugged in? | Session 1: MCP |
+| Two users get different results | Who is allowed to call what? | Sessions 3-4: governance |
+| It runs as a deployed app | Where does it live, and how does it get there? | Sessions 3-4: deployment |
 
 # 3. Spiral and promise ledger
 ## Overview pauses
