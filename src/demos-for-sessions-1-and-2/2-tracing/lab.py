@@ -37,8 +37,7 @@ TOOLS = {"word_count": t_word_count, "spell_check": t_spell_check}
 SYSTEM = """You are a proofreading assistant. Tools you can use:
 - word_count(text): number of words
 - spell_check(text): lists misspelled words with fixes
-Reply with JSON only: either {"tool": "<name>", "args": {"text": "..."}} to use a tool,
-or {"answer": "<short final answer>"} when done. Check spelling before answering."""
+Reply with JSON only: either {"tool": "<name>", "args": {"text": "..."}} to use a tool, or {"answer": "<short final answer>"} when done. Check spelling before answering."""
 
 
 @mlflow.trace(span_type="AGENT", name="proofread_agent")

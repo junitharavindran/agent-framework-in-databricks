@@ -1,5 +1,4 @@
-"""The three scorer kinds used in Session 2."""
-import json
+"""The 3 scorer kinds used in Session 2."""
 
 from mlflow.entities import Feedback
 from mlflow.genai.scorers import scorer

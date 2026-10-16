@@ -12,7 +12,9 @@ Reply with JSON only: either {"tool": "<name>", "args": {"text": "..."}} to use 
 """
 
 #================================================
-# TRACED TOOLS
+# TRACED FUNCTIONS
+
+# NOTE: Tools are prefixed with `t_`.
 
 @mlflow.trace(span_type="LLM", name="ask_model")
 def ask_model(transcript: str) -> dict:

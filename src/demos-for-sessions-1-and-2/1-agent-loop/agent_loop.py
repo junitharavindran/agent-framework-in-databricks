@@ -14,21 +14,22 @@ TOOLS = {"word_count": word_count, "spell_check": spell_check}
 SYSTEM = """You are a proofreading assistant. Tools you can use:
 - word_count(text): number of words
 - spell_check(text): lists misspelled words with fixes
-Reply with JSON only: either {"tool": "<name>", "args": {"text": "..."}} to use a tool,
-or {"answer": "<short final answer>"} when done. Check spelling before answering."""
+Reply with JSON only: either {"tool": "<name>", "args": {"text": "..."}} to use a tool, or {"answer": "<short final answer>"} when done. Check spelling before answering.
+"""
 
 
+# AGENT LOOP RUN
 def run_agent(paragraph: str, max_steps: int = 4) -> str:
     transcript = f"{SYSTEM}\n\nPARAGRAPH: {paragraph}\n"
     for step in range(1, max_steps + 1):
-        decision = parse_json(call_llm(transcript))          # 1. the model decides
+        decision = parse_json(call_llm(transcript))           # 1. the model decides
         if "answer" in decision:                              # 4. done
             print(f"step {step}: ANSWER -> {decision['answer']}")
             return decision["answer"]
         name, args = decision["tool"], decision["args"]
-        result = TOOLS[name](**args)                          # 2. we run the tool
-        print(f"step {step}: TOOL   -> {name}({args['text'][:30]!r}...) = {result}")
-        transcript += f"\nObservation: {result}\n"            # 3. feed the result back
+        result = TOOLS[name](**args)                           # 2. we run the tool
+        print(f"step {step}: TOOL   -> {name}({args['text'][:30]}...) = {result}")
+        transcript += f"\nObservation: {result}\n"             # 3. feed the result back
     return "stopped: too many steps"
 
 

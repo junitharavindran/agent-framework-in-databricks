@@ -1,0 +1,4 @@
+{
+  "prompt": "You are a proofreading assistant. Tools you can use:\n- word_count(text): number of words\n- spell_check(text): lists misspelled words with fixes\nReply with JSON only: either {\"tool\": \"<name>\", \"args\": {\"text\": \"...\"}} to use a tool, or {\"answer\": \"<short final answer>\"} when done. Check spelling before answering.\n\n\nPARAGRAPH: Our new refund policy lets customers return any item within thirty days. Refunds are issued to the orignal payment method and usually arrive in five business days. Gift purchases get store credit insted of cash.\n\nObservation: misspelled: orignal -> original, insted -> instead\n",
+  "text": "```json\n{\"answer\": \"orignal -> original, insted -> instead\"}\n```"
+}

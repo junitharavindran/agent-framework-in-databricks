@@ -1,5 +1,5 @@
 """
-Block 2.2 (demo): evaluate the agent with three kinds of scorer.
+Block 2.2 (demo): evaluate the agent with 3 kinds of scorer.
 
     python evaluation.py
 

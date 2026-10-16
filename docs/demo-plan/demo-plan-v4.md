@@ -952,7 +952,7 @@ Template:
 - [ ] Build the starter files for L1-L3 (not built yet)
 - [ ] Cache the output of every LLM-backed step
 - [ ] Confirm the live Gemini call and the default model name
-  > The sandbox could not reach Gemini, so `gemini-2.5-flash` is unconfirmed. Run `python smoke_test.py` on a real machine with a real key.
+  > The sandbox could not reach Gemini, so `gemini-3.5-flash-lite` is unconfirmed. Run `python smoke_test.py` on a real machine with a real key.
 - [ ] Confirm the skyjet acceptance checklist (needed before B1 is recorded)
 - [ ] Ask the account admin to enable Unity Gateway (Beta) on the Previews page
 - [ ] Confirm the workspace is UC-enabled and in a supported region
@@ -1103,6 +1103,6 @@ What was cut from V3 and where the participant can find it.
 5. **Starter files**
    > L1-L3 starter files are not built yet.
 6. **Live Gemini call**
-   > Not tested from the sandbox. The default model name `gemini-2.5-flash` needs confirming on a real key.
+   > Not tested from the sandbox. The default model name `gemini-3.5-flash-lite` needs confirming on a real key.
 7. **Agent Bricks CLI**
    > PyPI describes it as experimental. Decide whether to say so in 3.2 or keep a fallback deploy route.

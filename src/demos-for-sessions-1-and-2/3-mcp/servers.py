@@ -1,13 +1,14 @@
-"""Block 1.5 (demo): two small MCP servers.
+"""
+Block 1.5 (demo): 2 small MCP servers.
 
 Server A (STDIO):            word_count and spell_check tools
-Server B (Streamable HTTP):  a search_documents tool, a doc://<id> resource,
-                             and an "analyse this paragraph" prompt
+Server B (Streamable HTTP):  a search_documents tool, a doc://<id> resource, and an "analyse this paragraph" prompt
 
 Run one server by hand:
     python servers.py a            # STDIO: normally started BY the client
     python servers.py b            # HTTP on http://127.0.0.1:8765/mcp
 """
+
 import re
 import sys
 
@@ -71,7 +72,7 @@ def read_document(doc_id: str) -> str:
 @server_b.prompt()
 def analyse_paragraph(paragraph: str) -> str:
     """A reusable template (the user picks this)."""
-    return f"Proofread this paragraph and list any spelling problems:\n\n{paragraph}"
+    return f"\nProofread this paragraph and list any spelling problems:\n\n{paragraph}"
 
 #================================================
 if __name__ == "__main__":

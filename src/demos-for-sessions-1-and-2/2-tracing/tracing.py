@@ -12,7 +12,7 @@ STEP = 2 => Decorators on the LLM call and the tools: a span tree (default)
 STEP = 3 => The same, plus a tool that raises: find the error span
 """
 
-STEP = 2
+STEP = 3
 
 import mlflow
 
@@ -27,16 +27,21 @@ mlflow.set_experiment("session1-tracing")
 #================================================
 # TRACED FUNCTIONS
 
+# NOTE: Tools are prefixed with `t_`.
+
+# Model call
 @mlflow.trace(span_type="LLM", name="ask_model")
 def ask_model(transcript: str) -> dict:
     return parse_json(call_llm(transcript))
 
 
+# TOOL: Word count
 @mlflow.trace(span_type="TOOL", name="word_count")
 def t_word_count(text: str) -> int:
     return word_count(text)
 
 
+# TOOL: Spell check
 @mlflow.trace(span_type="TOOL", name="spell_check")
 def t_spell_check(text: str) -> str:
     if STEP == 3:
@@ -55,7 +60,7 @@ Reply with JSON only: either {"tool": "<name>", "args": {"text": "..."}} to use 
 """
 
 #================================================
-# AGENT RUN
+# AGENT LOOP RUN
 
 def run_agent(paragraph: str, max_steps: int = 4) -> str:
     transcript = f"{SYSTEM}\n\nPARAGRAPH: {paragraph}\n"

@@ -1,5 +1,5 @@
 """
-Block 1.5 (demo): a host with TWO MCP clients, one per server.
+Block 1.5 (demo): A host with 2 MCP clients, one per server.
 
     python client.py
 
@@ -40,8 +40,8 @@ async def main() -> None:
         params_a = StdioServerParameters(command=sys.executable, args=[SERVERS, "a"])
         async with Client(params_a) as client_a, Client(URL_B) as client_b:
             # --- the pairing: client A <-> server A, client B <-> server B ---
-            print(f"client A is connected to: {client_a.server_info.name!r}  (STDIO)")
-            print(f"client B is connected to: {client_b.server_info.name!r}  (Streamable HTTP)")
+            print(f"client A is connected to: {client_a.server_info.name}  (STDIO)")
+            print(f"client B is connected to: {client_b.server_info.name}  (Streamable HTTP)")
 
             # --- primitive 1: tools (the model decides to call them) ---
             print("\nTOOLS on A:", [t.name for t in (await client_a.list_tools()).tools])

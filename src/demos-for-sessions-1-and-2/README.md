@@ -2,6 +2,12 @@
 
 ---
 
+**Contents**:
+
+- [Demo plan](#demo-plan)
+- [Demos](#demos)
+  - [How the LLM is called](#how-the-llm-is-called)
+  - [Notes](#notes)
 
 ---
 

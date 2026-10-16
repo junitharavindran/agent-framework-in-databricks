@@ -17,7 +17,7 @@ import re
 from pathlib import Path
 
 CACHE = Path(__file__).parent / "cache" # results in a Path variable representing the path path <path-to-parent-directory>/cache, pointing to the folder for cached prompts and responses.
-MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")  # unconfirmed; see setup guide
+MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.5-flash-lite")  # unconfirmed; see setup guide
 
 # The demo "paragraph" used everywhere. Two deliberate misspellings.
 PARAGRAPH = (
@@ -80,7 +80,7 @@ def call_llm(prompt: str) -> str:
         return json.loads(path.read_text())["text"]
     
     # If prompt has not been cached with its response (live mode):
-    key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY")
+    key = os.environ.get("GEMINI_API_KEY")
     if not key:
         raise RuntimeError(
             "No cached reply and no GEMINI_API_KEY. Set the key, or run with DEMO_OFFLINE=1 to rehearse."
