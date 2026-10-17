@@ -4,12 +4,34 @@
 
 ---
 
-# Sessions 1 and 2
+**Contents**:
+
+- [Abbreviations](#abbreviations)
+- [Session 1](#session-1)
+- [Session 2](#session-2)
+
+---
+
+# Abbreviations
+
+| Abbreviation | Full form |
+| --- | --- |
+| UC | Unity Catalog |
+
+# Session 1
 
 <details>
 <summary>Whiteboard for sessions 1 and 2</summary>
 <img src="./demo-plan-v5-sessions-1-and-2.jpeg">
 </details>
+
+> **NOTE [as of 2026-10-17]**:
+> 
+> - Initially intended for sessions 1 and 2
+> - Was mostly fit into session 1 with some modifications:
+>   - E2E agentic app demo in Databricks not shown
+>   - Skipped the model versions tracking demo for MLFlow
+>   - Agent evaluation was just introduced + basic demo; deeper-dive needed
 
 ---
 
@@ -44,3 +66,10 @@ Carried over from V4:
 
 > **NOTE**: E1 is not explicitly covered in the whiteboard, but it is cheap and effective to add with the MLflow demos, as an agent loop enriches the demo while explaining a key concept that is relevant overall. Also note that E1 will partially be theoretically covered in the initial demo that establishes the point of reference.
 
+# Session 2
+Key ideas:
+
+- Continue agent evaluation
+- Introduce governance:
+  - Unity Gateway
+  - UC

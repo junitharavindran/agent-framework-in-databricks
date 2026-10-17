@@ -12,7 +12,7 @@ STEP = 2 => Decorators on the LLM call and the tools: a span tree (default)
 STEP = 3 => The same, plus a tool that raises: find the error span
 """
 
-STEP = 3
+STEP = 2
 
 import mlflow
 
