@@ -15,6 +15,12 @@
 **See**: ["Sessions 1 and 2", `docs/demo-plan/demo-plan-v5.md`](/docs/demo-plan/demo-plan-v5.md#sessions-1-and-2)
 
 # Demos
+Required installations:
+
+- `pip install google-genai`
+- `pip install mcp`
+- `pip install mlflow`
+
 5 demos, 1 folder each:
 
 - Every folder is self-contained
@@ -38,9 +44,9 @@
 Each folder has its own `helpers.py` with the same small `call_llm` function. It uses, in order: the offline stand-in (if `DEMO_OFFLINE=1`), a saved reply in that folder's `cache/`, then a live Gemini call (which saves its reply). Offline replies are rule-based, not model output: use them to rehearse, never to show. To build the cached fallback, run each demo once with `GEMINI_API_KEY` set and keep the `cache/` folders. Demo 3 needs no LLM.
 
 ## Notes
-- View traces from inside a folder: <br> `mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5001`
+- View traces from inside a folder: <br> E.g.: `mlflow ui --backend-store-uri sqlite:///mlflow.db --port 5001`
 - Each folder keeps its own `mlflow.db` <br> => To reset a demo, delete it
 - Traces export in the background, so scripts call `mlflow.flush_trace_async_logging()` before reading them.
 - Spell-checking uses a small fixed list in `helpers.py`
   > This is so the demo is predictable. It is not a real spell checker.
-- Demo 3 uses `127.0.0.1:8765` <r> => Change the port in `servers.py` and `client.py` if it is taken.
+- Demo 3 uses `127.0.0.1:8765` <br> => Change the port in `servers.py` and `client.py` if it is taken.
