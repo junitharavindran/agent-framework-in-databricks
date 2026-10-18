@@ -3,9 +3,8 @@
 # TODO: set to a chat endpoint available in your workspace
 LLM_ENDPOINT = "databricks-meta-llama-3-3-70b-instruct"
 
-# TODO: set to a workspace path you own, e.g. /Users/<you>/python-wiki-agent
-# NOTE: if demo 6 will store traces in Unity Catalog, create this experiment WITH a UC trace location now. Binding is only possible at experiment creation.
-EXPERIMENT_PATH = "/Users/<you>/python-wiki-agent"
+# NOTE: If demo 6 will store traces in Unity Catalog, create this experiment WITH a UC trace location now. Binding is only possible at experiment creation.
+EXPERIMENT_PATH = "/Shared/python-wiki-agent-experiment"
 
 TOP_K = 2  # number of wiki pages the retriever returns
 

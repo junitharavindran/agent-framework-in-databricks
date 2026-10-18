@@ -22,22 +22,40 @@ mlflow.openai.autolog()  # (1) child span for every OpenAI-client call
 _client = WorkspaceClient().serving_endpoints.get_open_ai_client()
 
 
-def _words(text: str) -> set[str]:
-    return set(re.findall(r"[a-z]+", text.lower()))
+# Common words to exclude from query search matches (so the focus is more on keyword matches)...
+STOP_WORDS = {
+    # articles and determiners
+    "a", "an", "the", "this", "that", "these", "those", "some", "any",
+    # pronouns
+    "i", "me", "my", "you", "your", "it", "its", "we", "they",
+    # prepositions and conjunctions
+    "in", "of", "to", "on", "at", "by", "into", "than", "so", "but", "then",
+    # auxiliary and common verbs
+    "is", "are", "was", "be", "do", "does", "did", "can", "could", "should", "will", "would",
+    # question words
+    "how", "what", "why", "which", "when", "where", "who",
+    # filler that appears on many pages
+    "use", "using", "make", "get", "just", "like", "also", "python",
+}
+
+
+def _words(text: str) -> set[str]: # return words in text, excluding stop words
+    return set(re.findall(r"[a-z]+", text.lower())) - STOP_WORDS
 
 
 @mlflow.trace(span_type="RETRIEVER")  # (2)
 def search_wiki(query: str, top_k: int = TOP_K) -> list[Document]:
     q = _words(query)
-    scored = [
-        (len(q & _words(f"{name} {text}")), name, text)
-        for name, text in WIKI_PAGES.items()
-    ]
+    scored = []
+    for name, text in WIKI_PAGES.items():
+        matches = q & _words(f"{name} {text}")
+        if len(matches) > 0:
+            scored.append((len(matches), name, text, matches))
     scored.sort(reverse=True)
     # Returning `Document` objects lets retrieval judges (demo 2) read what was retrieved.
     return [
-        Document(page_content=text, metadata={"doc_uri": f"wiki/{name}", "score": score}, id=name)
-        for score, name, text in scored[:top_k]
+        Document(page_content=text, metadata={"doc_uri": f"wiki/{name}", "score": score, "matches": matches}, id=name)
+        for score, name, text, matches in scored[:top_k]
     ]
 
 
