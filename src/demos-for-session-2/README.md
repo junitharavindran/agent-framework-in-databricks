@@ -5,7 +5,9 @@
 **Contents**:
 
 - [Demo plan](#demo-plan)
-- [Demos](#demos)
+- [The agent](#the-agent)
+  - [Demos](#demos)
+  - [Practical notes](#practical-notes)
 
 ---
 
@@ -17,8 +19,7 @@
 > **Approach**: One small agent, one new concept per demo. Each demo ends with a "break it" moment that motivates the next. Notebook flow: concept -> code -> what to look at in the UI -> break it.
 
 
-# Demos
-**The agent**:
+# The agent
 
 - **Task**: <br> Answer beginner Python questions from a wiki of about 10 short pages
 - **Tool**: <br> `search_wiki(query)`
@@ -33,7 +34,7 @@
 
 > **WHY**: Reusing the same agent and questions lets learners compare results across demos.
 
-**Demos**:
+## Demos
 
 | Code | Demo | What it shows | "Break it" moment |
 | --- | --- | --- | --- |
@@ -47,7 +48,7 @@
 
 > **NOTE**: D1 comes before D2 (the reverse of the key-ideas order above), because learners need to see a trace before an evaluation makes sense.
 
-**Practical notes**:
+## Practical notes
 
 - **Deployment**: develop in notebooks; deploy to Model Serving for D5-D6 (automatic tracing, clearest path through Unity Gateway)
 - **UC trace location**: if D6 stores traces in UC, create the experiment with the trace location **at creation**. Binding cannot be added or changed later.
