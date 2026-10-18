@@ -1,4 +1,4 @@
-<h1>Demos for Sessions 1-2</h1>
+<h1>Demos for Session 1</h1>
 
 ---
 
@@ -12,7 +12,7 @@
 ---
 
 # Demo plan
-**See**: ["Sessions 1 and 2", `docs/demo-plan/demo-plan-v5.md`](/docs/demo-plan/demo-plan-v5.md#sessions-1-and-2)
+**See**: ["Session 1", `docs/demo-plan/demo-plan-v5.md`](/docs/demo-plan/demo-plan-v5.md#session1)
 
 # Demos
 Required installations:

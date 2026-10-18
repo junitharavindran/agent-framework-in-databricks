@@ -97,7 +97,7 @@ Key ideas:
 
 **Demo plan** (Python wiki agent):
 
-> **Approach**: one small agent, one new concept per demo. Each demo ends with a "break it" moment that motivates the next. Notebook flow: concept -> code -> what to look at in the UI -> break it.
+> **Approach**: One small agent, one new concept per demo. Each demo ends with a "break it" moment that motivates the next. Notebook flow: concept -> code -> what to look at in the UI -> break it.
 
 **The agent**:
 
@@ -136,9 +136,3 @@ Key ideas:
   - Production monitoring, backfill and archival are Beta
   - UC trace storage needs MLflow >= 3.14, a SQL warehouse with `CAN USE`, a supported region, and an existing catalog and schema
 - **Gateway caveat**: legacy AI Gateway does not support rate limiting or guardrails on Databricks *agents* endpoints. Run the gateway demo against the model endpoint the agent calls, not the agent endpoint.
-
-**Status**:
-
-- [x] Plan
-- [x] Skeleton for D0-D2 (`demos/common/`, `demos/notebooks/00` to `02`)
-- [ ] D3-D6
