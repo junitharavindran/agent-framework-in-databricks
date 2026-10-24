@@ -1,4 +1,4 @@
-<h1>AI Models on Databricks</h1>
+<h1>AI Assets in Databricks</h1>
 
 ---
 
