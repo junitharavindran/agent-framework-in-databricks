@@ -5,7 +5,7 @@
 **Contents**:
 
 - [Abbreviations](#abbreviations)
-- [The foundations - UC](#the-foundations---uc)
+- [The foundations - UC OSS and UC](#the-foundations---uc-oss-and-uc)
 - [Governance for AI on Databricks - Unity Gateway](#governance-for-ai-on-databricks---unity-gateway)
 - [AI models hosted on Databricks](#ai-models-hosted-on-databricks)
   - [Foundation model, Foundation Model API](#foundation-model-foundation-model-api)
@@ -21,7 +21,7 @@
 | UC | Unity Catalog |
 | OSS | Open-Source Software |
 
-# The foundations - UC
+# The foundations - UC OSS and UC
 UC OSS is an open-source catalog-as-a-service for data and AI assets, i.e. a service to organise and manage data and AI assets (kind of like an OS's file system). For complex data and AI applications, the assets worth governing are no longer just tables, but also raw files, functions, and machine-learning models. UC provides the catalog as a shared, open service that does these jobs for all of them.
 
 ---
