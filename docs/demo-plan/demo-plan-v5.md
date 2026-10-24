@@ -9,6 +9,7 @@
 - [Abbreviations](#abbreviations)
 - [Session 1](#session-1)
 - [Session 2](#session-2)
+- [Session 3](#session-3)
 
 ---
 
@@ -130,9 +131,17 @@ Key ideas:
 
 **Practical notes**:
 
-- **Deployment**: develop in notebooks; deploy to Model Serving for D5-D6 (automatic tracing, clearest path through Unity Gateway)
-- **UC trace location**: if D6 stores traces in UC, create the experiment with the trace location **at creation**. Binding cannot be added or changed later.
+- **Deployment**: Develop in notebooks; deploy to Model Serving for D5-D6 (automatic tracing, clearest path through Unity Gateway)
+- **UC trace location**: If D6 stores traces in UC, create the experiment with the trace location **at creation**. Binding cannot be added or changed later.
 - **Availability checks** before D5-D6:
   - Production monitoring, backfill and archival are Beta
   - UC trace storage needs MLflow >= 3.14, a SQL warehouse with `CAN USE`, a supported region, and an existing catalog and schema
-- **Gateway caveat**: legacy AI Gateway does not support rate limiting or guardrails on Databricks *agents* endpoints. Run the gateway demo against the model endpoint the agent calls, not the agent endpoint.
+- **Gateway caveat**: Legacy AI Gateway does not support rate limiting or guardrails on Databricks *agents* endpoints. Run the gateway demo against the model endpoint the agent calls, not the agent endpoint.
+
+# Session 3
+
+<details>
+<summary>Whiteboard for session 3</summary>
+<img src="./demo-plan-v5-session-3.jpeg">
+</details>
+
