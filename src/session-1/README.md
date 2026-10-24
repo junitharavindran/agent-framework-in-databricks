@@ -12,7 +12,7 @@
 ---
 
 # Demo plan
-**See**: ["Session 1", `docs/demo-plan/demo-plan-v5.md`](/docs/demo-plan/demo-plan-v5.md#session1)
+**See**: ["Session 1", `docs/demo-plan/demo-plan-v5.md`](/docs/demo-plan/demo-plan-v5.md#session-1)
 
 # Demos
 Required installations:
