@@ -11,6 +11,8 @@
   - [Foundation model, Foundation Model API](#foundation-model-foundation-model-api)
   - [Model service](#model-service)
   - [Model Serving](#model-serving)
+- [Other key points](#other-key-points)
+  - [Registered models as functions in UC](#registered-models-as-functions-in-uc)
 
 ---
 
@@ -175,3 +177,9 @@ Model Serving is an AI deployment platform hosted on Databricks. Essentially, it
 >
 > - [Deploy models using Model Serving, **docs.databricks.com/aws/en/machine-learning/model-serving**](https://docs.databricks.com/aws/en/machine-learning/model-serving/)
 > - [Governance for model serving endpoints (legacy), **learn.microsoft.com**](https://learn.microsoft.com/en-us/azure/databricks/ai-gateway/overview-serving-endpoints)
+
+# Other key points
+## Registered models as functions in UC
+In UC, registered models are a subtype of the FUNCTION securable object. To grant access to a model registered in Unity Catalog, you use GRANT ON FUNCTION. You can also use Catalog Explorer to set model ownership and permissions.
+
+> **Reference**: [Manage model lifecycle in Unity Catalog, **docs.databricks.com/aws/en/machine-learning/manage-model-lifecycle**](https://docs.databricks.com/aws/en/machine-learning/manage-model-lifecycle)

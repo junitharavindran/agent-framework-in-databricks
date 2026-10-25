@@ -10,6 +10,7 @@
 - [Session 1](#session-1)
 - [Session 2](#session-2)
 - [Session 3](#session-3)
+  - [Tool integration (MCP on Databricks)](#tool-integration-mcp-on-databricks)
 
 ---
 
@@ -145,3 +146,71 @@ Key ideas:
 <img src="./demo-plan-v5-session-3.jpeg">
 </details>
 
+---
+
+## Tool integration (MCP on Databricks)
+
+Covers the whiteboard block "Tool integration w. MCP in Dbx":
+
+- Tool creation, without and with UC
+- MCP server(s) in Databricks
+- MCP and UC in Databricks
+- Managed vs. external vs. custom MCP in Databricks
+
+> **Concept reference**: [`tools-on-databricks.md`](../tools-on-databricks.md)
+
+Key points to note:
+
+- Session 1 showed how MCP works in general. Here, every demo maps that understanding onto Databricks, so show the Session 1 version and the Databricks version side by side where possible.
+- **Terms**: the whiteboard says "managed" MCP. In the Databricks docs:
+  - *Databricks-provided* MCPs are the `system.ai.*` services (this is what "managed" means on the whiteboard)
+  - *Managed MCP servers* now refers to the older workspace endpoints (`/api/2.0/mcp/...`), which bypass Unity Gateway
+- Realistic examples need not be shown in demo. External MCP servers are covered in notes only (T4).
+
+---
+
+**The agent** (same Python wiki agent, with changes):
+
+- **Loop**: The model chooses its tools, as in the Session 1 agent loop. The earlier `answer_question` always called `search_wiki` first, which suits evaluation but cannot show MCP tool discovery.
+- **Tools**:
+
+  | Tool | Route | Notes |
+  | --- | --- | --- |
+  | `search_wiki(query)` | Custom MCP server on Databricks Apps | Ported from the Session 1 HTTP server. Returns plain dicts, with `matches` as a list (a `set` is not JSON-serialisable). |
+  | `get_exercise(topic_id)` | UC SQL function over an `exercises` table | One practice exercise per wiki page id. Data the wiki does not hold, so only this tool can answer an exercise request. A predefined query with one parameter. |
+  | `run_python(code)` | `system.ai.sandbox` (Unity Gateway beta) | Isolated, no network egress |
+
+- **LLM**: A model service (as in Demo 5), not a serving endpoint. It must support tool calling.
+- **Tracing**: `mlflow.openai.autolog()` (LLM spans), the `AGENT` root span, and a `TOOL` span on the one wrapper that calls every tool. The MCP server is not traced.
+
+> **Design rule**: Each tool answers a kind of question the others cannot. A tool is only called when a question needs it, so overlapping tools (for example, a snippet-search plus a read-the-page tool over pages of about 200 characters) never get called, and the demo shows nothing.
+
+> **WHY**: Same agent and wiki as before, so learners compare against Sessions 1 and 2. Only the way the agent gets its tools changes.
+
+**Demos**:
+
+| Code | Demo | What it shows | "Break it" moment |
+| --- | --- | --- | --- |
+| T0 | Tool inventory | The tutor's tools and the route each takes. List the MCP services in the workspace (`databricks ai-gateway list-mcp-services --parent schemas/system.ai`). | n/a |
+| T1 | Tool creation: without UC, then with UC | Four questions, one per kind (covered by the wiki, needs an exercise, not in the wiki, out of scope), with a table of which tools the model actually used. `get_exercise` first as a plain Python function in the loop. Then as a UC SQL function over `exercises`, with `COMMENT`s as the tool and parameter descriptions (the parameter `COMMENT` lists the valid topic ids), called with `UCFunctionToolkit`. Grant and revoke `EXECUTE`. | A vague `COMMENT`: the model passes `'dicts'` and gets nothing, or invents an exercise without calling the tool |
+| T2 | Custom MCP server on Databricks Apps | `search_wiki` ported from the Session 1 server: `mcp-` app name, bind `0.0.0.0`, port from `DATABRICKS_APP_PORT`, path `/mcp`, `app.yaml`. Deploy and read the URL. | A wrong path, or a call without OAuth and `CAN USE` (a PAT is refused for Apps) |
+| T3 | MCP from the agent | `DatabricksMCPClient`: `list_tools()` and `call_tool()` against the T2 server. Show the raw `tools/list` and `tools/call` shapes next to Session 1. Then change only the URL to `system.ai.sandbox`. | A bad argument returns `isError`, not an exception |
+| T4 | External MCP servers (**notes only**) | Registration steps, the UC HTTP connection that the MCP service wraps, network allow-listing, limits | n/a |
+| T5 | MCP and UC: governing tools | Access: `CAN USE` on the app (T2) and `EXECUTE` on `system.ai.sandbox` (grant, revoke, see the failure). Gateway controls on the sandbox MCP: rate limit and a usage query (`system.ai_gateway.usage`, `service_type = 'MCP_SERVICE'`). Then `get_exercise` through the legacy UC functions endpoint. | The legacy call leaves no trace in the gateway usage table |
+| T6 | The tutor end to end | The loop with all three tools. Two clients (MCP and the UC toolkit), one tool list, a map from tool name to caller. Traced. | A tool call fails mid-loop; read the `TOOL` span |
+
+> **NOTE**: T2 comes before T3 so the client has a server of its own to talk to.
+
+**Practical notes**:
+
+- **Availability checks** before T3, T5:
+  - Unity Gateway beta (for `sandbox`, `dbsql`, `web_search`): on
+  - Managed MCP Servers preview (for the legacy endpoint in T5): **to confirm**
+  - Service Policies preview (optional extra for T5): **to confirm**
+  - Rate limits and tool selection on a provided MCP need `MANAGE` on it; a metastore admin first grants themselves `MANAGE` on the `system.ai` schema
+  - The chosen model service supports tool calling
+- **Gateway caveat**: Tool selection is documented for *registered* MCP services, and Databricks Apps servers cannot be registered. So T5 does not hide tools on the custom server. The control there is `CAN USE` on the app.
+- **Auth caveat**: Apps servers require OAuth. Check that the notebook's default authentication is accepted by the T2 app when building T3.
+- **Tracing caveat**: The Databricks pages do not say that MLflow traces MCP calls by itself, so the `TOOL` span is added by hand.
+- **Genie and multi-agent**: The Genie One MCP (`system.ai.genie_one_mcp`) goes through Unity Gateway. The Genie Agent MCP (`/api/2.0/mcp/genie/{id}`) is a legacy endpoint, and its calls do not. Relevant to the sub-agents item below. The older Genie endpoint `/api/2.0/mcp/genie` is to be sunset on 2026-10-31; check what that means for the Genie Agent endpoint.
+- **Open questions**: see "Not verified yet" in [`tools-on-databricks.md`](../tools-on-databricks.md#not-verified-yet).
